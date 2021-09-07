@@ -6,20 +6,49 @@ from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text, \
 from asciimatics.scene import Scene
 from asciimatics.screen import Screen
 from asciimatics.exceptions import ResizeScreenError, NextScene, StopApplication
+from asciimatics.widgets.frame import THEMES
+from asciimatics.widgets.popupdialog import PopUpDialog
 import sys
 import sqlite3
 from random import random, randint, shuffle
 from itertools import chain
+from collections import defaultdict
+from asciimatics.renderers import FigletText, Fire
+from asciimatics.scene import Scene
+from asciimatics.screen import Screen
+from asciimatics.effects import Print
+from asciimatics.exceptions import ResizeScreenError
+from pyfiglet import Figlet
+import sys
+
+arr = sorted_arr = list(range(1000))
+# arr = array("Q", (_arr := list(chain(*[range(3 * int(10e5)) for i in range(1)]))))
+# shuffle(arr)
+#
+# sorted_arr = _arr + list(chain(*[range(3 * int(10e5), 6 * int(10e5)) for i in range(1)]))
+# shuffle(sorted_arr)
+# sorted_arr = sorted_arr[int(3 * 10e5):]
+# sorted_arr.sort()
+# sorted_arr = array("Q", sorted_arr)
 
 
-arr = array("Q", (_arr := list(chain(*[range(3 * int(10e5)) for i in range(1)]))))
-shuffle(arr)
-
-sorted_arr = _arr + list(chain(*[range(3 * int(10e5), 6 * int(10e5)) for i in range(1)]))
-shuffle(sorted_arr)
-sorted_arr = sorted_arr[int(3 * 10e5):]
-sorted_arr.sort()
-sorted_arr = array("Q", sorted_arr)
+THEMES.update(
+    {"my_theme": defaultdict(
+        lambda: (Screen.COLOUR_WHITE, Screen.A_NORMAL, 	234),
+        {
+            "background": (Screen.COLOUR_WHITE, Screen.A_NORMAL, 	234),
+            "background_menu": (Screen.COLOUR_WHITE, Screen.A_NORMAL, 	236),
+            "invalid": (Screen.COLOUR_BLACK, Screen.A_NORMAL, Screen.COLOUR_RED),
+            "label": (Screen.COLOUR_WHITE, Screen.A_BOLD, Screen.COLOUR_BLACK),
+            "title": (Screen.COLOUR_WHITE, Screen.A_BOLD, Screen.COLOUR_BLACK),
+            "selected_focus_field": (Screen.COLOUR_WHITE, Screen.A_BOLD, Screen.COLOUR_BLACK),
+            "focus_edit_text": (Screen.COLOUR_WHITE, Screen.A_BOLD, Screen.COLOUR_BLACK),
+            "focus_button": (Screen.COLOUR_WHITE, Screen.A_BOLD, Screen.COLOUR_BLACK),
+            "selected_focus_control": (Screen.COLOUR_WHITE, Screen.A_BOLD, Screen.COLOUR_BLACK),
+            "disabled": (Screen.COLOUR_BLACK, Screen.A_BOLD, Screen.COLOUR_BLACK),
+        }
+    )}
+)
 
 
 class ContactModel(object):
@@ -168,6 +197,7 @@ class ContactView(Frame):
         layout2.add_widget(Button("OK", self._ok), 0)
         layout2.add_widget(Button("Cancel", self._cancel), 3)
         self.fix()
+        # 161415 - фон
 
     def reset(self):
         # Do standard reset to clear out form, then populate with new data.
@@ -204,6 +234,7 @@ class MyView(Frame):
                                      can_scroll=False,
                                      title="Последовательный поиск")
         # Save off the model that accesses the contacts database.
+        self.set_theme("bright")
         self._model = model
         title_layout = Layout([110])
         self.add_layout(title_layout)
@@ -212,7 +243,7 @@ class MyView(Frame):
         self.add_layout(layout)
         layout.add_widget(Label("Неупорядоченный массив"))
         layout.add_widget(Divider())
-        layout.add_widget(Text("Ищем число:", "key_1"))
+        layout.add_widget(Text("Ищем число:", "key_1", validator="^[0-9]{1,}$"))
         layout.add_widget(Label(""))
         layout.add_widget(Label("Неоптимальный поиск"))
         layout.add_widget(Label(""))
@@ -234,7 +265,7 @@ class MyView(Frame):
 
         layout.add_widget(Label("Упорядоченный массив"), column=2)
         layout.add_widget(Divider(), column=2)
-        layout.add_widget(Text("Ищем число:", "key_2"), column=2)
+        layout.add_widget(Text("Ищем число:", "key_2", validator="^[0-9]{1,}$"), column=2)
         layout.add_widget(Label(""), column=2)
         layout.add_widget(Label("Поиск как в неупорядоченном"), column=2)
         layout.add_widget(Label(""), column=2)
@@ -270,7 +301,10 @@ class MyView(Frame):
     def generate_1(self):
         # shuffle(arr)
         self.save()
-        key = int(self.data["key_1"])
+        try:
+            key = int(self.data["key_1"])
+        except TypeError:
+            PopUpDialog()
         ind1, time1 = self.no_opt_find(key, arr)
         ind2, time2 = self.opt_find(key, arr)
         print(ind1, time1, ind2, time2)
@@ -282,7 +316,7 @@ class MyView(Frame):
 
     def generate_2(self):
         self.save()
-        key = self.data["key_2"]
+        key = int(self.data["key_2"])
         ind1, time1 = self.opt_find(key, sorted_arr)
         ind2, time2 = self.up_find(key, sorted_arr)
         print(ind1, time1, ind2, time2)
@@ -337,8 +371,15 @@ class MyView(Frame):
 
 
 def demo(screen, scene):
+    fire = Print(screen,
+          Fire(screen.height, screen.width, "*" * (screen.width - 20), 0.8, 60, screen.colours,
+               bg=screen.colours >= 256),
+          0,
+          speed=1,
+          transparent=False)
+
     scenes = [
-        Scene([MyView(screen, contacts)], -1, name="Main"),
+        Scene([fire, MyView(screen, contacts)], 500, name="Main"),
         # Scene([ContactView(screen, contacts)], -1, name="Edit Contact")
     ]
 
