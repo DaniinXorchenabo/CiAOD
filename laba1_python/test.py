@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-
+from array import array, ArrayType
+from time import time
 from asciimatics.widgets import Frame, ListBox, Layout, Divider, Text, \
     Button, TextBox, Widget, VerticalDivider, Label
 from asciimatics.scene import Scene
@@ -7,7 +8,19 @@ from asciimatics.screen import Screen
 from asciimatics.exceptions import ResizeScreenError, NextScene, StopApplication
 import sys
 import sqlite3
-from random import random
+from random import random, randint, shuffle
+from itertools import chain
+
+
+arr = array("Q", (_arr := list(chain(*[range(3 * int(10e5)) for i in range(1)]))))
+shuffle(arr)
+
+sorted_arr = _arr + list(chain(*[range(3 * int(10e5), 6 * int(10e5)) for i in range(1)]))
+shuffle(sorted_arr)
+sorted_arr = sorted_arr[int(3 * 10e5):]
+sorted_arr.sort()
+sorted_arr = array("Q", sorted_arr)
+
 
 class ContactModel(object):
     def __init__(self):
@@ -180,15 +193,16 @@ class ChangingLabel(Label):
     def change_text(self, add_text: str):
         self._text = self._start_text + add_text
 
+
 class MyView(Frame):
     def __init__(self, screen, model):
         super(MyView, self).__init__(screen,
-                                       screen.height * 2 // 3,
-                                       screen.width * 2 // 3,
-                                       on_load=self._reload_list,
-                                       hover_focus=True,
-                                       can_scroll=False,
-                                       title="Последовательный поиск")
+                                     screen.height * 2 // 3,
+                                     screen.width * 2 // 3,
+                                     on_load=self._reload_list,
+                                     hover_focus=True,
+                                     can_scroll=False,
+                                     title="Последовательный поиск")
         # Save off the model that accesses the contacts database.
         self._model = model
         title_layout = Layout([110])
@@ -198,7 +212,7 @@ class MyView(Frame):
         self.add_layout(layout)
         layout.add_widget(Label("Неупорядоченный массив"))
         layout.add_widget(Divider())
-        layout.add_widget(Text("Ключ:", "key_1"))
+        layout.add_widget(Text("Ищем число:", "key_1"))
         layout.add_widget(Label(""))
         layout.add_widget(Label("Неоптимальный поиск"))
         layout.add_widget(Label(""))
@@ -220,7 +234,7 @@ class MyView(Frame):
 
         layout.add_widget(Label("Упорядоченный массив"), column=2)
         layout.add_widget(Divider(), column=2)
-        layout.add_widget(Text("Ключ", "key_2"), column=2)
+        layout.add_widget(Text("Ищем число:", "key_2"), column=2)
         layout.add_widget(Label(""), column=2)
         layout.add_widget(Label("Поиск как в неупорядоченном"), column=2)
         layout.add_widget(Label(""), column=2)
@@ -238,7 +252,6 @@ class MyView(Frame):
         layout.add_widget(Divider(), column=2)
         layout.add_widget(Button("Найти", self.generate_2), column=2)
 
-
         layout_footer = Layout([1])
         self.add_layout(layout_footer)
         layout_footer.add_widget(Divider())
@@ -255,26 +268,72 @@ class MyView(Frame):
         raise StopApplication("User pressed quit")
 
     def generate_1(self):
+        # shuffle(arr)
         self.save()
-        key = self.data["key_1"]
-        self.time_1_no.change_text(str((random())))
-        self.time_1_opt.change_text(str(round(random(), 7)))
-        self.index_1_no.change_text(str(int(random() * 10e5)))
-        self.index_1_opt.change_text(str(int(random() * 10e5)))
+        key = int(self.data["key_1"])
+        ind1, time1 = self.no_opt_find(key, arr)
+        ind2, time2 = self.opt_find(key, arr)
+        print(ind1, time1, ind2, time2)
+        self.time_1_no.change_text(str(time1))
+        self.time_1_opt.change_text(str(time2))
+        self.index_1_no.change_text(str(ind1))
+        self.index_1_opt.change_text(str(ind2))
         self.time_1_no.update(None)
-        print(self.data)
-        # raise NextScene("Main")
 
     def generate_2(self):
         self.save()
-        key = self.data["key_1"]
-        self.time_2_no.change_text(str((random())))
-        self.time_2_up.change_text(str(round(random(), 7)))
-        self.index_2_no.change_text(str(int(random() * 10e5)))
-        self.index_2_up.change_text(str(int(random() * 10e5)))
-        self.time_2_no.update(None)
-        print(self.data)
+        key = self.data["key_2"]
+        ind1, time1 = self.opt_find(key, sorted_arr)
+        ind2, time2 = self.up_find(key, sorted_arr)
+        print(ind1, time1, ind2, time2)
+        self.time_2_no.change_text(str(time1))
+        self.time_2_up.change_text(str(time2))
+        self.index_2_no.change_text(str(ind1))
+        self.index_2_up.change_text(str(ind2))
+        self.time_1_no.update(None)
 
+    @staticmethod
+    def no_opt_find(element: int, arr: ArrayType) -> tuple[str, float]:
+        element = int(element)
+        i: int = 0
+        len_ = len(arr)
+        start = time()
+        while i != len_:
+            if element == arr[i]:
+                break
+            i += 1
+        end = time()
+        if i == len_:
+            i: str = "Не найдено"
+        return str(i), end - start
+
+    @staticmethod
+    def opt_find(element: int, loc_arr: ArrayType) -> tuple[str, float]:
+        element = int(element)
+        i: int = 0
+        loc_arr.append(element)
+        start = time()
+        while element != loc_arr[i]:
+            i += 1
+        if i == len(loc_arr) - 1:
+            i: str = "Не найдено"
+        end = time()
+        loc_arr.pop(len(loc_arr) - 1)
+        return str(i), end - start
+
+    @staticmethod
+    def up_find(element: int, loc_arr: ArrayType) -> tuple[str, float]:
+        element = int(element)
+        i: int = 0
+        loc_arr.append(element + 1)
+        start = time()
+        while element > loc_arr[i]:
+            i += 1
+        if loc_arr[i] != element:
+            i: str = "Не найдено"
+        end = time()
+        loc_arr.pop(len(loc_arr) - 1)
+        return str(i), end - start
 
 
 def demo(screen, scene):
