@@ -7,7 +7,7 @@ from asciimatics.screen import Screen
 from asciimatics.exceptions import ResizeScreenError, NextScene, StopApplication
 import sys
 import sqlite3
-
+from random import random
 
 class ContactModel(object):
     def __init__(self):
@@ -171,6 +171,15 @@ class ContactView(Frame):
         raise NextScene("Main")
 
 
+class ChangingLabel(Label):
+
+    def __init__(self, label, *a, **k):
+        super().__init__(label, *a, **k)
+        self._start_text = label
+
+    def change_text(self, add_text: str):
+        self._text = self._start_text + add_text
+
 class MyView(Frame):
     def __init__(self, screen, model):
         super(MyView, self).__init__(screen,
@@ -179,46 +188,56 @@ class MyView(Frame):
                                        on_load=self._reload_list,
                                        hover_focus=True,
                                        can_scroll=False,
-                                       title="Contact List")
+                                       title="Последовательный поиск")
         # Save off the model that accesses the contacts database.
         self._model = model
         title_layout = Layout([110])
         self.add_layout(title_layout)
-        title_layout.add_widget(Label("Последовательный поиск"))
         title_layout.add_widget(Divider())
-
         layout = Layout([50, 10, 50], fill_frame=True)
         self.add_layout(layout)
         layout.add_widget(Label("Неупорядоченный массив"))
         layout.add_widget(Divider())
-        layout.add_widget(Text("Ключ:", "name"))
+        layout.add_widget(Text("Ключ:", "key_1"))
         layout.add_widget(Label(""))
         layout.add_widget(Label("Неоптимальный поиск"))
         layout.add_widget(Label(""))
-        layout.add_widget(Label("Время :"))
-        layout.add_widget(Label("Индекс:"))
+        self.time_1_no = ChangingLabel("Время :")
+        self.index_1_no = ChangingLabel("Индекс:")
+        layout.add_widget(self.time_1_no)
+        layout.add_widget(self.index_1_no)
         layout.add_widget(Label(""))
         layout.add_widget(Label("Оптимальный поиск"), column=0)
         layout.add_widget(Label(""))
-        layout.add_widget(Label("Время :"))
-        layout.add_widget(Label("Индекс:"))
+        self.time_1_opt = ChangingLabel("Время :")
+        self.index_1_opt = ChangingLabel("Индекс:")
+        layout.add_widget(self.time_1_opt)
+        layout.add_widget(self.index_1_opt)
+        layout.add_widget(Divider())
+        layout.add_widget(Button("Найти", self.generate_1), column=0)
 
         layout.add_widget(VerticalDivider(), column=1)
 
         layout.add_widget(Label("Упорядоченный массив"), column=2)
         layout.add_widget(Divider(), column=2)
-        layout.add_widget(Text("Ключ", "name"), column=2)
+        layout.add_widget(Text("Ключ", "key_2"), column=2)
         layout.add_widget(Label(""), column=2)
         layout.add_widget(Label("Поиск как в неупорядоченном"), column=2)
         layout.add_widget(Label(""), column=2)
-        layout.add_widget(Label("Время :"), column=2)
-        layout.add_widget(Label("Индекс:"), column=2)
+        self.time_2_no = ChangingLabel("Время :")
+        self.index_2_no = ChangingLabel("Индекс:")
+        layout.add_widget(self.time_2_no, column=2)
+        layout.add_widget(self.index_2_no, column=2)
         layout.add_widget(Label(""), column=2)
         layout.add_widget(Label("Поиск как в упорядоченном"), column=2)
         layout.add_widget(Label(""), column=2)
-        layout.add_widget(Label("Время :"), column=2)
-        layout.add_widget(Label("Индекс:"), column=2)
-        # layout.add_widget(Divider(), column=2)
+        self.time_2_up = ChangingLabel("Время :")
+        self.index_2_up = ChangingLabel("Индекс:")
+        layout.add_widget(self.time_2_up, column=2)
+        layout.add_widget(self.index_2_up, column=2)
+        layout.add_widget(Divider(), column=2)
+        layout.add_widget(Button("Найти", self.generate_2), column=2)
+
 
         layout_footer = Layout([1])
         self.add_layout(layout_footer)
@@ -234,6 +253,27 @@ class MyView(Frame):
     @staticmethod
     def _quit():
         raise StopApplication("User pressed quit")
+
+    def generate_1(self):
+        self.save()
+        key = self.data["key_1"]
+        self.time_1_no.change_text(str((random())))
+        self.time_1_opt.change_text(str(round(random(), 7)))
+        self.index_1_no.change_text(str(int(random() * 10e5)))
+        self.index_1_opt.change_text(str(int(random() * 10e5)))
+        self.time_1_no.update(None)
+        print(self.data)
+        # raise NextScene("Main")
+
+    def generate_2(self):
+        self.save()
+        key = self.data["key_1"]
+        self.time_2_no.change_text(str((random())))
+        self.time_2_up.change_text(str(round(random(), 7)))
+        self.index_2_no.change_text(str(int(random() * 10e5)))
+        self.index_2_up.change_text(str(int(random() * 10e5)))
+        self.time_2_no.update(None)
+        print(self.data)
 
 
 
