@@ -379,7 +379,10 @@ def demo(screen, scene):
           transparent=False)
 
     scenes = [
-        Scene([fire, MyView(screen, contacts)], 500, name="Main"),
+        Scene([
+            fire,
+            MyView(screen, contacts)
+        ], 500, name="Main"),
         # Scene([ContactView(screen, contacts)], -1, name="Edit Contact")
     ]
 
