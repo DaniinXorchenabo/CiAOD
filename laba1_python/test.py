@@ -21,15 +21,20 @@ from asciimatics.exceptions import ResizeScreenError
 from pyfiglet import Figlet
 import sys
 
-arr = sorted_arr = list(range(1000))
-# arr = array("Q", (_arr := list(chain(*[range(3 * int(10e5)) for i in range(1)]))))
+# arr = list(range(10))
+# sorted_arr = list(range(10))
 # shuffle(arr)
-#
-# sorted_arr = _arr + list(chain(*[range(3 * int(10e5), 6 * int(10e5)) for i in range(1)]))
-# shuffle(sorted_arr)
-# sorted_arr = sorted_arr[int(3 * 10e5):]
-# sorted_arr.sort()
-# sorted_arr = array("Q", sorted_arr)
+# print(arr)
+# print(sorted_arr)
+
+arr = array("Q", (_arr := list(chain(*[range(3 * int(10e5)) for i in range(1)]))))
+shuffle(arr)
+
+sorted_arr = _arr + list(chain(*[range(3 * int(10e5), 6 * int(10e5)) for i in range(1)]))
+shuffle(sorted_arr)
+sorted_arr = sorted_arr[int(3 * 10e5):]
+sorted_arr.sort()
+sorted_arr = array("Q", sorted_arr)
 
 
 THEMES.update(
@@ -303,11 +308,13 @@ class MyView(Frame):
         self.save()
         try:
             key = int(self.data["key_1"])
-        except TypeError:
-            PopUpDialog()
-        ind1, time1 = self.no_opt_find(key, arr)
-        ind2, time2 = self.opt_find(key, arr)
-        print(ind1, time1, ind2, time2)
+
+            # PopUpDialog()
+            ind1, time1 = self.no_opt_find(key, arr)
+            ind2, time2 = self.opt_find(key, arr)
+            # print(ind1, time1, ind2, time2)
+        except (TypeError, ValueError):
+            ind1 = time1 = ind2 = time2 = "некорректный ввод"
         self.time_1_no.change_text(str(time1))
         self.time_1_opt.change_text(str(time2))
         self.index_1_no.change_text(str(ind1))
@@ -316,10 +323,15 @@ class MyView(Frame):
 
     def generate_2(self):
         self.save()
-        key = int(self.data["key_2"])
-        ind1, time1 = self.opt_find(key, sorted_arr)
-        ind2, time2 = self.up_find(key, sorted_arr)
-        print(ind1, time1, ind2, time2)
+        try:
+            key = int(self.data["key_2"])
+            ind1, time1 = self.opt_find(key, sorted_arr)
+            ind2, time2 = self.up_find(key, sorted_arr)
+            print(ind1, time1, ind2, time2)
+
+        except (TypeError, ValueError):
+            ind1 = time1 = ind2 = time2 = "некорректный ввод"
+
         self.time_2_no.change_text(str(time1))
         self.time_2_up.change_text(str(time2))
         self.index_2_no.change_text(str(ind1))
