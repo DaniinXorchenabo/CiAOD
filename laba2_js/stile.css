@@ -1,0 +1,27 @@
+h2{
+    text-align: center;
+}
+
+.input_key_box{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    width: 100%;
+}
+
+
+.box_parent{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: stretch;
+    width: 100%;
+}
+.output{
+    width: 220px;
+    height: 150px;
+}
