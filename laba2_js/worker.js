@@ -68,17 +68,18 @@ const consistent_search = element => {
     let i = 0;
     let ans;
     let index = 0;
-    let current_el = arr[index];
+    // let current_el;
     while (i < count_iter) {
         index = 0;
-        current_el = arr[index];
-        while (element > current_el) {
+        // current_el = arr[index];
+        while (element > arr[index]) {
             index++;
-            current_el = arr[index];
+
         }
         i++;
     }
-    if (current_el === element) {
+    // current_el = arr[index];
+    if (arr[index] === element) {
         ans = [index, performance.now() - start_time];
     } else {
         ans = ["Не найден", performance.now() - start_time];
@@ -107,10 +108,10 @@ const binary_search = element => {
         while (L <= R) {
             current_ind = Math.floor((L + R) / 2);
             current_el = arr[current_ind];
-            if (current_el == element) {
-                break
-            } else if (element < current_el) {
+            if (element < current_el)  {
                 R = current_ind - 1
+            } else if (current_el == element) {
+                break
             } else {
                 L = current_ind + 1
             }
@@ -136,18 +137,18 @@ const opt_binary_search = element => {
     let ans;
     let L = 0;
     let R = arr.length - 1;
-    let current_el;
+    // let current_el;
     let current_ind;
     while (i < count_iter) {
         L = 0;
         R = arr.length - 1;
-        current_el = null;
+        // current_el = null;
         current_ind = null;
 
         while (L < R) {
             current_ind = Math.floor((L + R) / 2);
-            current_el = arr[current_ind];
-            if (element <= current_el) {
+            // current_el = ;
+            if (element <= arr[current_ind]) {
                 R = current_ind
             } else {
                 L = current_ind + 1
@@ -187,7 +188,7 @@ const inter_binary_search = element => {
             current_el = arr[current_ind];
             if (current_el == element) {
                 break
-            } else if (element < current_el) {
+            } else if (element < current_el)  {
                 R = current_ind - 1
             } else {
                 L = current_ind + 1
