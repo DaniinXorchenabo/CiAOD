@@ -10,7 +10,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 typedef struct _node
 {
-	UINT64 hash;
+	INT64 key;
 	struct _node *next;
 } NODE;
 
@@ -52,6 +52,7 @@ LPARRAY CALLBACK CreateArray(_In_ CONST UINT64 len)
 
 	lpArray->len = len;
 	memset(lpArray->arr, -1, len);
+
 	return lpArray;
 }
 
@@ -100,13 +101,19 @@ VOID CALLBACK DeleteChains(_In_ LPARRNODE lpArrnode)
 			iter->next = NULL;
 		}
 	}
+
 	free(lpArrnode->lpNodes);
 	free(lpArrnode);
 }
 
 
-BOOL CALLBACK Chains(_Inout_ LPARRNODE lpArrnode, _In_ CONST UINT64 h, _Out_opt_ LPBOOL coll)
+BOOL CALLBACK Chains(_Inout_ LPARRNODE lpArrnode, _In_ CONST UINT64 h, _In_ CONST INT64 k, _Out_opt_ LPBOOL coll)
 {
+	if (h >= lpArrnode->len)
+	{
+		return EXIT_FAILURE;
+	}
+
 	if (lpArrnode->lpNodes[h] == NULL)
 	{
 		lpArrnode->lpNodes[h] = calloc(1, sizeof(NODE));
@@ -115,8 +122,12 @@ BOOL CALLBACK Chains(_Inout_ LPARRNODE lpArrnode, _In_ CONST UINT64 h, _Out_opt_
 			return EXIT_FAILURE;
 		}
 
-		lpArrnode->lpNodes[h]->hash = h;
-		*coll = FALSE;
+		lpArrnode->lpNodes[h]->key = k;
+		if (coll != NULL)
+		{
+			*coll = FALSE;
+		}
+
 		return EXIT_SUCCESS;
 	}
 
@@ -132,24 +143,31 @@ BOOL CALLBACK Chains(_Inout_ LPARRNODE lpArrnode, _In_ CONST UINT64 h, _Out_opt_
 		return EXIT_FAILURE;
 	}
 
-	lpNode->next->hash = h;
-	*coll = TRUE;
+	lpNode->next->key = k;
+	if (coll != NULL)
+	{
+		*coll = TRUE;
+	}
+
 	return EXIT_SUCCESS;
 }
 
-BOOL CALLBACK OpenAddressing(_Inout_ LPARRAY arr, _In_ CONST UINT64 h, _Out_opt_ LPBOOL coll)
+BOOL CALLBACK OpenAddressing(_Inout_ LPARRAY lpArr, _In_ CONST UINT64 h, _In_ CONST INT64 k, _Out_opt_ LPBOOL coll)
 {
-	*coll = FALSE;
-
-	for (UINT64 i = h; i < arr->len; ++i)
+	if (coll != NULL)
 	{
-		if (arr->arr[i] == -1)
+		*coll = FALSE;
+	}
+
+	for (UINT64 i = h; i < lpArr->len; ++i)
+	{
+		if (lpArr->arr[i] == -1)
 		{
-			arr->arr[i] = h;
+			lpArr->arr[i] = k;
 			return EXIT_SUCCESS;
 		}
 
-		if (*coll == FALSE)
+		if (coll != NULL && *coll == FALSE)
 		{
 			*coll = TRUE;
 		}
@@ -159,6 +177,19 @@ BOOL CALLBACK OpenAddressing(_Inout_ LPARRAY arr, _In_ CONST UINT64 h, _Out_opt_
 }
 
 
+INT64 CALLBACK FindChains(_In_ CONST LPARRNODE lpArrnode, _In_ CONST UINT64 h)
+{
+	return 0;
+}
+
+INT64 CALLBACK FindArray(_In_ CONST LPARRAY lpArr, _In_ CONST UINT64 h)
+{
+	return 0;
+}
+
+
+UINT64(CALLBACK *hashes[4])(_In_ CONST INT64, _In_ CONST UINT64);
+
 UINT64 CALLBACK hash_0(_In_ CONST INT64 k, _In_ CONST UINT64 m)
 {
 	return k % m;
@@ -167,6 +198,7 @@ UINT64 CALLBACK hash_0(_In_ CONST INT64 k, _In_ CONST UINT64 m)
 UINT64 CALLBACK hash_1(_In_ CONST INT64 k, _In_ CONST UINT64 m)
 {
 	CONST INT64 p = k * k;
+
 	UINT64 lp = 0;
 	for (UINT64 i = p; i > 0; i /= 10, ++lp);
 
@@ -201,19 +233,14 @@ UINT64 CALLBACK hash_2(_In_ CONST INT64 k, _In_ CONST UINT64 m)
 
 UINT64 CALLBACK hash_3(_In_ CONST INT64 k, _In_ CONST UINT64 m)
 {
-	CONST FLOAT ka = k * 0.618f;
+	CONST DOUBLE ka = k * .6180339887498948;
+
 	return (UINT64)(m * (ka - (INT64)ka));
 }
 
 UINT64 CALLBACK hash_4(_In_ CONST INT64 k, _In_ CONST UINT64 m)
 {
-	switch (rand() % 4)
-	{
-		case 0: return hash_0(k, m); break;
-		case 1: return hash_1(k, m); break;
-		case 2: return hash_2(k, m); break;
-		case 3: return hash_3(k, m); break;
-	}
+	return hashes[rand() % 4](k, m);
 }
 
 
@@ -228,11 +255,12 @@ UINT64 CALLBACK hash_4(_In_ CONST INT64 k, _In_ CONST UINT64 m)
 #define BUTT_0 2000
 #define BUTT_1 2001
 
-HWND edits[7];
 
-
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WndProc(_In_ CONST HWND hWnd, _In_ CONST UINT message, _In_ CONST WPARAM wParam, _In_ CONST LPARAM lParam)
 {
+	static HWND edits[7];
+	static UINT64 better;
+
 	switch (message)
 	{
 		case WM_PAINT:
@@ -242,7 +270,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			LPCTSTR str[] = {
 				_T("Количество сравнений"),
-				_T("Метод дления"),
+				_T("Метод деления"),
 				_T("Метод середины кадратов"),
 				_T("Метод свёртывания"),
 				_T("Метод умножения"),
@@ -285,6 +313,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			CreateWindow(_T("button"), _T("Вычислить"), WS_CHILD | WS_VISIBLE, 166, 240, 100, 30, hWnd, (HMENU)BUTT_0, NULL, NULL);
 			CreateWindow(_T("button"), _T("Сравнить"), WS_CHILD | WS_VISIBLE, 166, 390, 100, 30, hWnd, (HMENU)BUTT_1, NULL, NULL);
 
+			hashes[0] = hash_0;
+			hashes[1] = hash_1;
+			hashes[2] = hash_2;
+			hashes[3] = hash_3;
+
 			break;
 		}
 
@@ -295,8 +328,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				case BUTT_0:
 				{
 					TCHAR numberOfComparisonsStr[16] = { 0 };
-
-					CONST INT iResultGetWindowText = GetWindowText(edits[0], numberOfComparisonsStr, 16);
+					CONST INT iResultGetWindowText = GetWindowText(*edits, numberOfComparisonsStr, 16);
 					if (iResultGetWindowText == FALSE)
 					{
 						return EXIT_FAILURE;
@@ -309,12 +341,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						return EXIT_FAILURE;
 					}
 
-					UINT64 colls[4] = { 0 };
+					UINT64 wins[4] = { 0 };
+
 					for (UINT64 c = 0; c < numberOfComparisons; ++c)
 					{
 						CONST UINT64 arrsize = 1000;
 
 						LPARRNODE lplpArrnode[4];
+
 						for (UINT64 i = 0; i < 4; ++i)
 						{
 							lplpArrnode[i] = CreateChains(arrsize);
@@ -324,50 +358,46 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 							}
 						}
 
-						BOOL coll;
+						UINT64 colls[4] = { 0 };
+
 						for (UINT64 i = 0; i < arrsize; ++i)
 						{
-							CONST USHORT rnd = rand() % 65000;
+							CONST INT64 rnd = rand() % 65000;
 
-							BOOL bResultChains_1 = Chains(lplpArrnode[0], hash_0(rnd, arrsize), &coll);
-							if (bResultChains_1 != FALSE)
+							for (UINT64 j = 0; j < 4; ++j)
 							{
-								return EXIT_FAILURE;
+								BOOL coll;
+								CONST BOOL bResultChains = Chains(lplpArrnode[j], hashes[j](rnd, arrsize), rnd, &coll);
+								if (bResultChains != FALSE)
+								{
+									return EXIT_FAILURE;
+								}
+								colls[j] += coll;
 							}
-							colls[0] += coll;
-
-							BOOL bResultChains_2 = Chains(lplpArrnode[1], hash_1(rnd, arrsize), &coll);
-							if (bResultChains_2 != FALSE)
-							{
-								return EXIT_FAILURE;
-							}
-							colls[1] += coll;
-
-							BOOL bResultChains_3 = Chains(lplpArrnode[2], hash_2(rnd, arrsize), &coll);
-							if (bResultChains_3 != FALSE)
-							{
-								return EXIT_FAILURE;
-							}
-							colls[2] += coll;
-
-							BOOL bResultChains_4 = Chains(lplpArrnode[3], hash_3(rnd, arrsize), &coll);
-							if (bResultChains_4 != FALSE)
-							{
-								return EXIT_FAILURE;
-							}
-							colls[3] += coll;
 						}
+						
+						UINT64 min = *colls;
+						UINT64 index = 0;
 
 						for (UINT64 i = 0; i < 4; ++i)
 						{
+							if (min > colls[i])
+							{
+								min = colls[i];
+								index = i;
+							}
 							DeleteChains(lplpArrnode[i]);
 						}
+
+						++wins[index];
 					}
-					
-					TCHAR outputBuffer[16] = { 0 };
+
+					UINT64 max = *wins;
 					for (UINT64 i = 0; i < 4; ++i)
 					{
-						CONST INT iResult_stprintf_s = _stprintf_s(outputBuffer, 16, _T("%I64u"), colls[i]);
+						TCHAR outputBuffer[16] = { 0 };
+
+						CONST INT iResult_stprintf_s = _stprintf_s(outputBuffer, 16, _T("%I64u"), wins[i]);
 						if (iResult_stprintf_s <= FALSE)
 						{
 							return EXIT_FAILURE;
@@ -378,13 +408,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						{
 							return EXIT_FAILURE;
 						}
+
+						if (max < wins[i])
+						{
+							max = wins[i];
+							better = i;
+						}
 					}
 					break;
 				}
 
 				case BUTT_1:
 				{
-					//TODO: finish up
+					CONST UINT64 length = 10000;
+					LPARRNODE lpArrnode = CreateChains(length);
+					LPARRAY lpArray = CreateArray(length);
+
+					for (UINT64 i = 0; i < length; ++i)
+					{
+						CONST INT64 rnd = rand() % length;
+						CONST UINT64 h = hashes[better](rnd, length);
+
+						Chains(lpArrnode, h, rnd, NULL);
+						OpenAddressing(lpArray, h, rnd, NULL);
+					}
+
+					DeleteArray(lpArray);
+					DeleteChains(lpArrnode);
 
 					break;
 				}
@@ -416,7 +466,7 @@ INT APIENTRY _tWinMain(
 {
 	WNDCLASS wc = { 0 };
 	wc.lpfnWndProc = WndProc;
-	wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
+	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wc.lpszClassName = _T("MainWindow");
 
 	CONST ATOM aResultRegisterClass = RegisterClass(&wc);
