@@ -9,7 +9,6 @@
 
 #include <windows.h>
 #include <tchar.h>
-#include <time.h>
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
@@ -589,7 +588,7 @@ INT APIENTRY _tWinMain(
 		return EXIT_FAILURE;
 	}
 
-	HWND hWnd = CreateWindow(wc.lpszClassName, NULL, WS_OVERLAPPEDWINDOW, 0, 0, 433, 480, NULL, NULL, hInstance, NULL);
+	CONST HWND hWnd = CreateWindow(wc.lpszClassName, NULL, WS_OVERLAPPEDWINDOW, 0, 0, 433, 480, NULL, NULL, hInstance, NULL);
 	if (hWnd == NULL)
 	{
 		return EXIT_FAILURE;
