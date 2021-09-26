@@ -6,7 +6,6 @@
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
-
 #define EDIT_0 1000
 #define EDIT_1 1001
 #define EDIT_2 1002
@@ -23,7 +22,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #define REGISTER register
 
 #define CLEARARR = { 0 }
-#define IOBUFFER 16
+#define IOBUFFER 32
 
 
 typedef struct _node
@@ -202,12 +201,9 @@ INLINE STATIC BOOL CALLBACK OpenAddressing(
 			*coll = TRUE;
 		}
 	}
+
 	return EXIT_FAILURE;
 }
-
-
-STATIC UINT64(CALLBACK *hashes[4])(_In_ REGISTER CONST INT64, _In_ REGISTER CONST UINT64) CLEARARR;
-
 
 INLINE STATIC UINT64 CALLBACK hash_0(_In_ REGISTER CONST INT64 k, _In_ REGISTER CONST UINT64 m)
 {
@@ -253,20 +249,23 @@ INLINE STATIC UINT64 CALLBACK hash_2(_In_ REGISTER CONST INT64 k, _In_ REGISTER 
 INLINE STATIC UINT64 CALLBACK hash_3(_In_ REGISTER CONST INT64 k, _In_ REGISTER CONST UINT64 m)
 {
 	REGISTER CONST DOUBLE ka = k * .6180339887498948;
-
 	return (UINT64)(m * (ka - (INT64)ka));
 }
 
-INLINE STATIC UINT64 CALLBACK hash_4(_In_ REGISTER CONST INT64 k, _In_ REGISTER CONST UINT64 m)
-{
-	return hashes[rand() % 4](k, m);
-}
+STATIC UINT64(CALLBACK *CONST hashes[])(_In_ REGISTER CONST INT64, _In_ REGISTER CONST UINT64) = { hash_0, hash_1, hash_2, hash_3 };
+
+/* not used */
+//INLINE STATIC UINT64 CALLBACK hash_4(_In_ REGISTER CONST INT64 k, _In_ REGISTER CONST UINT64 m)
+//{
+//	return hashes[rand() % 4](k, m);
+//}
 
 
 INLINE STATIC BOOL CALLBACK FindChains(
 	_In_ REGISTER CONST LPARRNODE lpArrnode,
 	_In_ REGISTER CONST INT64 k,
-	_In_opt_ REGISTER CONST UINT64 (CALLBACK *hashFunc)(_In_ REGISTER CONST INT64, _In_ REGISTER CONST UINT64))
+	_In_opt_ REGISTER CONST UINT64 (CALLBACK *hashFunc)(_In_ REGISTER CONST INT64, _In_ REGISTER CONST UINT64),
+	_Out_opt_ REGISTER PUINT64 comp)
 {
 	if (hashFunc == NULL)
 	{
@@ -281,14 +280,21 @@ INLINE STATIC BOOL CALLBACK FindChains(
 		{
 			return TRUE;
 		}
+
+		if (comp != NULL)
+		{
+			++*comp;
+		}
 	}
+
 	return FALSE;
 }
 
 INLINE STATIC BOOL CALLBACK FindArray(
 	_In_ REGISTER CONST LPARRAY lpArr,
 	_In_ REGISTER CONST INT64 k,
-	_In_opt_ REGISTER CONST UINT64(CALLBACK *hashFunc)(_In_ REGISTER CONST INT64, _In_ REGISTER CONST UINT64))
+	_In_opt_ REGISTER CONST UINT64(CALLBACK *hashFunc)(_In_ REGISTER CONST INT64, _In_ REGISTER CONST UINT64),
+	_Out_opt_ REGISTER PUINT64 comp)
 {
 	if (hashFunc == NULL)
 	{
@@ -303,9 +309,21 @@ INLINE STATIC BOOL CALLBACK FindArray(
 		{
 			return TRUE;
 		}
+
+		if (comp != NULL)
+		{
+			++*comp;
+		}
 	}
+
 	return FALSE;
 }
+
+STATIC BOOL(CALLBACK *CONST FindFunc[])(
+	_In_ REGISTER CONST LPVOID,
+	_In_ REGISTER CONST INT64,
+	_In_opt_ REGISTER CONST UINT64(CALLBACK *)(_In_ REGISTER CONST INT64, _In_ REGISTER CONST UINT64),
+	_Out_opt_ REGISTER PUINT64) = { FindArray, FindChains };
 
 
 LRESULT CALLBACK WndProc(_In_ CONST HWND hWnd, _In_ CONST UINT message, _In_ CONST WPARAM wParam, _In_ CONST LPARAM lParam)
@@ -365,11 +383,6 @@ LRESULT CALLBACK WndProc(_In_ CONST HWND hWnd, _In_ CONST UINT message, _In_ CON
 			CreateWindow(_T("button"), _T("Вычислить"), WS_CHILD | WS_VISIBLE, 166, 240, 100, 30, hWnd, (HMENU)BUTT_0, NULL, NULL);
 			CreateWindow(_T("button"), _T("Сравнить"), WS_CHILD | WS_VISIBLE, 166, 390, 100, 30, hWnd, (HMENU)BUTT_1, NULL, NULL);
 
-			hashes[0] = hash_0;
-			hashes[1] = hash_1;
-			hashes[2] = hash_2;
-			hashes[3] = hash_3;
-
 			break;
 		}
 
@@ -379,8 +392,6 @@ LRESULT CALLBACK WndProc(_In_ CONST HWND hWnd, _In_ CONST UINT message, _In_ CON
 			{
 				case BUTT_0:
 				{
-					
-
 					TCHAR numberOfComparisonsStr[IOBUFFER] CLEARARR;
 					CONST INT iResultGetWindowText = GetWindowText(*edits, numberOfComparisonsStr, IOBUFFER);
 					if (iResultGetWindowText == FALSE)
@@ -416,11 +427,9 @@ LRESULT CALLBACK WndProc(_In_ CONST HWND hWnd, _In_ CONST UINT message, _In_ CON
 						}
 
 						UINT64 colls[4] CLEARARR;
-
 						for (UINT64 i = 0; i < arrsize; ++i)
 						{
 							CONST INT64 rnd = rand() % 65000;
-
 							for (UINT64 j = 0; j < 4; ++j)
 							{
 								BOOL coll;
@@ -445,7 +454,6 @@ LRESULT CALLBACK WndProc(_In_ CONST HWND hWnd, _In_ CONST UINT message, _In_ CON
 							}
 							DeleteChains(lplpArrnode[i]);
 						}
-
 						++wins[index];
 					}
 
@@ -454,7 +462,6 @@ LRESULT CALLBACK WndProc(_In_ CONST HWND hWnd, _In_ CONST UINT message, _In_ CON
 					for (UINT64 i = 0; i < 4; ++i)
 					{
 						TCHAR outputBuffer[IOBUFFER] CLEARARR;
-
 						CONST INT iResult_stprintf_s = _stprintf_s(outputBuffer, IOBUFFER, _T("%I64u"), wins[i]);
 						if (iResult_stprintf_s <= FALSE)
 						{
@@ -479,44 +486,41 @@ LRESULT CALLBACK WndProc(_In_ CONST HWND hWnd, _In_ CONST UINT message, _In_ CON
 				case BUTT_1:
 				{
 					CONST UINT64 len = 10000;
-					INT64 arrkey[10000];
-					
-					for (UINT64 i = 0; i < len; ++i)
-					{
-						arrkey[i] = rand() % 20000;
-					}
-
 					LPARRAY lpArray = CreateArray(len);
 					LPARRNODE lpArrnode = CreateChains(len);
 
 					for (UINT64 i = 0; i < len; ++i)
 					{
-						CONST UINT64 h = hashes[better](arrkey[i], len);
+						CONST INT64 k = rand() % 10000;
+						CONST UINT64 h = hashes[better](k, len);
 
-						OpenAddressing(lpArray, h, arrkey[i], NULL);
-						Chains(lpArrnode, h, arrkey[i], NULL);
+						OpenAddressing(lpArray, h, k, NULL);
+						Chains(lpArrnode, h, k, NULL);
 					}
 
+					INT64 arrkey[10000];
+					for (UINT64 i = 0; i < len; ++i)
+					{
+						arrkey[i] = rand() % 20000;
+					}
+
+					UINT64 allComps[2] CLEARARR;
 					UINT64 finds[2] CLEARARR;
 					DWORD times[2];
+					CONST LPVOID containers[] = { lpArray, lpArrnode };
 
-					times[0] = GetTickCount();
-
-					for (UINT64 i = 0; i < len; ++i)
+					for (UINT64 i = 0; i < 2; ++i)
 					{
-						finds[0] += FindArray(lpArray, arrkey[i], hashes[better]);
+						times[i] = GetTickCount();
+						for (REGISTER UINT64 j = 0; j < len; ++j)
+						{
+							finds[i] += !FindFunc[i](containers[i], arrkey[j], hashes[better], allComps + i);
+						}
+						times[i] = GetTickCount() - times[i];
 					}
 
-					times[0] = GetTickCount() - times[0];
-
-					times[1] = GetTickCount();
-
-					for (UINT64 i = 0; i < len; ++i)
-					{
-						finds[1] += FindChains(lpArrnode, arrkey[i], hashes[better]);
-					}
-
-					times[1] = GetTickCount() - times[1];
+					allComps[0] /= len;
+					allComps[1] /= len;
 
 					DeleteChains(lpArrnode);
 					DeleteArray(lpArray);
@@ -524,7 +528,7 @@ LRESULT CALLBACK WndProc(_In_ CONST HWND hWnd, _In_ CONST UINT message, _In_ CON
 					for (UINT64 i = 0; i < 2; ++i)
 					{
 						TCHAR outputBuffer[IOBUFFER] CLEARARR;
-						CONST INT iResult_stprintf_s = _stprintf_s(outputBuffer, IOBUFFER, _T("%I64u %d"), finds[i], times[i]);
+						CONST INT iResult_stprintf_s = _stprintf_s(outputBuffer, IOBUFFER, _T("%d - %I64u - %I64u"), times[i], allComps[i], finds[i]);
 						if (iResult_stprintf_s <= FALSE)
 						{
 							return EXIT_FAILURE;
