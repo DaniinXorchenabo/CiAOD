@@ -1,11 +1,29 @@
 #include <windows.h>
 #include <tchar.h>
-#include <stdio.h>
+#include <time.h>
 
-#pragma warning(disable: 4715) // for hash_4()
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+
+
+#define EDIT_0 1000
+#define EDIT_1 1001
+#define EDIT_2 1002
+#define EDIT_3 1003
+#define EDIT_4 1004
+#define EDIT_5 1005
+#define EDIT_6 1006
+
+#define BUTT_0 2000
+#define BUTT_1 2001
+
+#define STATIC static
+#define INLINE inline
+#define REGISTER register
+
+#define CLEARARR = { 0 }
+#define IOBUFFER 16
 
 
 typedef struct _node
@@ -36,7 +54,7 @@ typedef struct _array
 typedef ARRAY FAR *LPARRAY;
 
 
-LPARRAY CALLBACK CreateArray(_In_ CONST UINT64 len)
+INLINE STATIC LPARRAY CALLBACK CreateArray(_In_ REGISTER CONST UINT64 len)
 {
 	LPARRAY lpArray = malloc(sizeof(ARRAY));
 	if (lpArray == NULL)
@@ -51,19 +69,23 @@ LPARRAY CALLBACK CreateArray(_In_ CONST UINT64 len)
 	}
 
 	lpArray->len = len;
-	memset(lpArray->arr, -1, len);
+
+	for (REGISTER UINT64 i = 0; i < lpArray->len; ++i)
+	{
+		lpArray->arr[i] = -1;
+	}
 
 	return lpArray;
 }
 
-VOID CALLBACK DeleteArray(_In_ LPARRAY lpArray)
+INLINE STATIC VOID CALLBACK DeleteArray(_In_ REGISTER LPARRAY lpArray)
 {
 	free(lpArray->arr);
 	free(lpArray);
 }
 
 
-LPARRNODE CALLBACK CreateChains(_In_ CONST UINT64 len)
+INLINE STATIC LPARRNODE CALLBACK CreateChains(_In_ REGISTER CONST UINT64 len)
 {
 	LPARRNODE lpArrNode = malloc(sizeof(ARRNODE));
 	if (lpArrNode == NULL)
@@ -77,7 +99,7 @@ LPARRNODE CALLBACK CreateChains(_In_ CONST UINT64 len)
 	return lpArrNode;
 }
 
-VOID CALLBACK DeleteChains(_In_ LPARRNODE lpArrnode)
+INLINE STATIC VOID CALLBACK DeleteChains(_In_ REGISTER LPARRNODE lpArrnode)
 {
 	for (UINT64 i = 0; i < lpArrnode->len; ++i)
 	{
@@ -107,7 +129,11 @@ VOID CALLBACK DeleteChains(_In_ LPARRNODE lpArrnode)
 }
 
 
-BOOL CALLBACK Chains(_Inout_ LPARRNODE lpArrnode, _In_ CONST UINT64 h, _In_ CONST INT64 k, _Out_opt_ LPBOOL coll)
+INLINE STATIC BOOL CALLBACK Chains(
+	_Inout_ REGISTER LPARRNODE lpArrnode,
+	_In_ REGISTER CONST UINT64 h,
+	_In_ REGISTER CONST INT64 k,
+	_Out_opt_ REGISTER LPBOOL coll)
 {
 	if (h >= lpArrnode->len)
 	{
@@ -123,6 +149,7 @@ BOOL CALLBACK Chains(_Inout_ LPARRNODE lpArrnode, _In_ CONST UINT64 h, _In_ CONS
 		}
 
 		lpArrnode->lpNodes[h]->key = k;
+
 		if (coll != NULL)
 		{
 			*coll = FALSE;
@@ -131,11 +158,8 @@ BOOL CALLBACK Chains(_Inout_ LPARRNODE lpArrnode, _In_ CONST UINT64 h, _In_ CONS
 		return EXIT_SUCCESS;
 	}
 
-	LPNODE lpNode = lpArrnode->lpNodes[h];
-	while (lpNode->next != NULL)
-	{
-		lpNode = lpNode->next;
-	}
+	REGISTER LPNODE lpNode = lpArrnode->lpNodes[h];
+	for (; lpNode->next != NULL; lpNode = lpNode->next);
 
 	lpNode->next = calloc(1, sizeof(NODE));
 	if (lpNode->next == NULL)
@@ -144,6 +168,7 @@ BOOL CALLBACK Chains(_Inout_ LPARRNODE lpArrnode, _In_ CONST UINT64 h, _In_ CONS
 	}
 
 	lpNode->next->key = k;
+
 	if (coll != NULL)
 	{
 		*coll = TRUE;
@@ -152,14 +177,18 @@ BOOL CALLBACK Chains(_Inout_ LPARRNODE lpArrnode, _In_ CONST UINT64 h, _In_ CONS
 	return EXIT_SUCCESS;
 }
 
-BOOL CALLBACK OpenAddressing(_Inout_ LPARRAY lpArr, _In_ CONST UINT64 h, _In_ CONST INT64 k, _Out_opt_ LPBOOL coll)
+INLINE STATIC BOOL CALLBACK OpenAddressing(
+	_Inout_ REGISTER LPARRAY lpArr,
+	_In_ REGISTER CONST UINT64 h,
+	_In_ REGISTER CONST INT64 k,
+	_Out_opt_ REGISTER LPBOOL coll)
 {
 	if (coll != NULL)
 	{
 		*coll = FALSE;
 	}
 
-	for (UINT64 i = h; i < lpArr->len; ++i)
+	for (REGISTER UINT64 i = h; i < lpArr->len; ++i)
 	{
 		if (lpArr->arr[i] == -1)
 		{
@@ -167,43 +196,33 @@ BOOL CALLBACK OpenAddressing(_Inout_ LPARRAY lpArr, _In_ CONST UINT64 h, _In_ CO
 			return EXIT_SUCCESS;
 		}
 
-		if (coll != NULL && *coll == FALSE)
+		if (coll != NULL &&
+			*coll == FALSE)
 		{
 			*coll = TRUE;
 		}
 	}
-
 	return EXIT_FAILURE;
 }
 
 
-INT64 CALLBACK FindChains(_In_ CONST LPARRNODE lpArrnode, _In_ CONST UINT64 h)
-{
-	return 0;
-}
-
-INT64 CALLBACK FindArray(_In_ CONST LPARRAY lpArr, _In_ CONST UINT64 h)
-{
-	return 0;
-}
+STATIC UINT64(CALLBACK *hashes[4])(_In_ REGISTER CONST INT64, _In_ REGISTER CONST UINT64) CLEARARR;
 
 
-UINT64(CALLBACK *hashes[4])(_In_ CONST INT64, _In_ CONST UINT64);
-
-UINT64 CALLBACK hash_0(_In_ CONST INT64 k, _In_ CONST UINT64 m)
+INLINE STATIC UINT64 CALLBACK hash_0(_In_ REGISTER CONST INT64 k, _In_ REGISTER CONST UINT64 m)
 {
 	return k % m;
 }
 
-UINT64 CALLBACK hash_1(_In_ CONST INT64 k, _In_ CONST UINT64 m)
+INLINE STATIC UINT64 CALLBACK hash_1(_In_ REGISTER CONST INT64 k, _In_ REGISTER CONST UINT64 m)
 {
-	CONST INT64 p = k * k;
+	REGISTER CONST INT64 p = k * k;
 
-	UINT64 lp = 0;
-	for (UINT64 i = p; i > 0; i /= 10, ++lp);
+	REGISTER UINT64 lp = 0;
+	for (REGISTER UINT64 i = p; i > 0; i /= 10, ++lp);
 
-	UINT64 lm = 0;
-	for (UINT64 i = m; i > 0; i /= 10, ++lm);
+	REGISTER UINT64 lm = 0;
+	for (REGISTER UINT64 i = m; i > 0; i /= 10, ++lm);
 	--lm;
 
 	if (lm > lp)
@@ -211,55 +230,88 @@ UINT64 CALLBACK hash_1(_In_ CONST INT64 k, _In_ CONST UINT64 m)
 		return p;
 	}
 
-	CONST UINT64 ll = (CONST UINT64)((lp - lm) * .5);
-	CONST UINT64 lr = (CONST UINT64)((lp - lm) * .5 + .5);
+	REGISTER CONST UINT64 ll = (CONST UINT64)((lp - lm) * .5);
+	REGISTER CONST UINT64 lr = (CONST UINT64)((lp - lm) * .5 + .5);
 
-	UINT64 llv = 1;
-	for (UINT64 i = 0; i < lp - ll; ++i, llv *= 10);
+	REGISTER UINT64 llv = 1;
+	for (REGISTER UINT64 i = 0; i < lp - ll; ++i, llv *= 10);
 
-	UINT64 lrv = 1;
-	for (UINT64 i = 0; i < lr; ++i, lrv *= 10);
+	REGISTER UINT64 lrv = 1;
+	for (REGISTER UINT64 i = 0; i < lr; ++i, lrv *= 10);
 
 	return p % llv / lrv;
 }
 
-UINT64 CALLBACK hash_2(_In_ CONST INT64 k, _In_ CONST UINT64 m)
+INLINE STATIC UINT64 CALLBACK hash_2(_In_ REGISTER CONST INT64 k, _In_ REGISTER CONST UINT64 m)
 {
-	UINT64 s = 0;
-	for (UINT64 i = k; i % m; s += i % m, i /= m);
+	REGISTER UINT64 s = 0;
+	for (REGISTER UINT64 i = k; i % m; s += i % m, i /= m);
 
 	return s % m;
 }
 
-UINT64 CALLBACK hash_3(_In_ CONST INT64 k, _In_ CONST UINT64 m)
+INLINE STATIC UINT64 CALLBACK hash_3(_In_ REGISTER CONST INT64 k, _In_ REGISTER CONST UINT64 m)
 {
-	CONST DOUBLE ka = k * .6180339887498948;
+	REGISTER CONST DOUBLE ka = k * .6180339887498948;
 
 	return (UINT64)(m * (ka - (INT64)ka));
 }
 
-UINT64 CALLBACK hash_4(_In_ CONST INT64 k, _In_ CONST UINT64 m)
+INLINE STATIC UINT64 CALLBACK hash_4(_In_ REGISTER CONST INT64 k, _In_ REGISTER CONST UINT64 m)
 {
 	return hashes[rand() % 4](k, m);
 }
 
 
-#define EDIT_0 1000
-#define EDIT_1 1001
-#define EDIT_2 1002
-#define EDIT_3 1003
-#define EDIT_4 1004
-#define EDIT_5 1005
-#define EDIT_6 1006
+INLINE STATIC BOOL CALLBACK FindChains(
+	_In_ REGISTER CONST LPARRNODE lpArrnode,
+	_In_ REGISTER CONST INT64 k,
+	_In_opt_ REGISTER CONST UINT64 (CALLBACK *hashFunc)(_In_ REGISTER CONST INT64, _In_ REGISTER CONST UINT64))
+{
+	if (hashFunc == NULL)
+	{
+		hashFunc = *hashes;
+	}
 
-#define BUTT_0 2000
-#define BUTT_1 2001
+	for (REGISTER LPNODE iter = lpArrnode->lpNodes[hashFunc(k, lpArrnode->len)];
+		iter != NULL;
+		iter = iter->next)
+	{
+		if (iter->key == k)
+		{
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+INLINE STATIC BOOL CALLBACK FindArray(
+	_In_ REGISTER CONST LPARRAY lpArr,
+	_In_ REGISTER CONST INT64 k,
+	_In_opt_ REGISTER CONST UINT64(CALLBACK *hashFunc)(_In_ REGISTER CONST INT64, _In_ REGISTER CONST UINT64))
+{
+	if (hashFunc == NULL)
+	{
+		hashFunc = *hashes;
+	}
+
+	for (REGISTER UINT64 i = hashFunc(k, lpArr->len);
+		i < lpArr->len && lpArr->arr[i] != -1;
+		++i)
+	{
+		if (lpArr->arr[i] == k)
+		{
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
 
 
 LRESULT CALLBACK WndProc(_In_ CONST HWND hWnd, _In_ CONST UINT message, _In_ CONST WPARAM wParam, _In_ CONST LPARAM lParam)
 {
-	static HWND edits[7];
-	static UINT64 better;
+	STATIC HWND edits[7];
+	STATIC UINT64 better;
 
 	switch (message)
 	{
@@ -327,8 +379,10 @@ LRESULT CALLBACK WndProc(_In_ CONST HWND hWnd, _In_ CONST UINT message, _In_ CON
 			{
 				case BUTT_0:
 				{
-					TCHAR numberOfComparisonsStr[16] = { 0 };
-					CONST INT iResultGetWindowText = GetWindowText(*edits, numberOfComparisonsStr, 16);
+					
+
+					TCHAR numberOfComparisonsStr[IOBUFFER] CLEARARR;
+					CONST INT iResultGetWindowText = GetWindowText(*edits, numberOfComparisonsStr, IOBUFFER);
 					if (iResultGetWindowText == FALSE)
 					{
 						return EXIT_FAILURE;
@@ -341,12 +395,15 @@ LRESULT CALLBACK WndProc(_In_ CONST HWND hWnd, _In_ CONST UINT message, _In_ CON
 						return EXIT_FAILURE;
 					}
 
-					UINT64 wins[4] = { 0 };
+					if (numberOfComparisons <= 0)
+					{
+						return EXIT_SUCCESS;
+					}
 
+					UINT64 wins[4] CLEARARR;
 					for (UINT64 c = 0; c < numberOfComparisons; ++c)
 					{
 						CONST UINT64 arrsize = 1000;
-
 						LPARRNODE lplpArrnode[4];
 
 						for (UINT64 i = 0; i < 4; ++i)
@@ -358,7 +415,7 @@ LRESULT CALLBACK WndProc(_In_ CONST HWND hWnd, _In_ CONST UINT message, _In_ CON
 							}
 						}
 
-						UINT64 colls[4] = { 0 };
+						UINT64 colls[4] CLEARARR;
 
 						for (UINT64 i = 0; i < arrsize; ++i)
 						{
@@ -393,11 +450,12 @@ LRESULT CALLBACK WndProc(_In_ CONST HWND hWnd, _In_ CONST UINT message, _In_ CON
 					}
 
 					UINT64 max = *wins;
+
 					for (UINT64 i = 0; i < 4; ++i)
 					{
-						TCHAR outputBuffer[16] = { 0 };
+						TCHAR outputBuffer[IOBUFFER] CLEARARR;
 
-						CONST INT iResult_stprintf_s = _stprintf_s(outputBuffer, 16, _T("%I64u"), wins[i]);
+						CONST INT iResult_stprintf_s = _stprintf_s(outputBuffer, IOBUFFER, _T("%I64u"), wins[i]);
 						if (iResult_stprintf_s <= FALSE)
 						{
 							return EXIT_FAILURE;
@@ -420,22 +478,64 @@ LRESULT CALLBACK WndProc(_In_ CONST HWND hWnd, _In_ CONST UINT message, _In_ CON
 
 				case BUTT_1:
 				{
-					CONST UINT64 length = 10000;
-					LPARRNODE lpArrnode = CreateChains(length);
-					LPARRAY lpArray = CreateArray(length);
-
-					for (UINT64 i = 0; i < length; ++i)
+					CONST UINT64 len = 10000;
+					INT64 arrkey[10000];
+					
+					for (UINT64 i = 0; i < len; ++i)
 					{
-						CONST INT64 rnd = rand() % length;
-						CONST UINT64 h = hashes[better](rnd, length);
-
-						Chains(lpArrnode, h, rnd, NULL);
-						OpenAddressing(lpArray, h, rnd, NULL);
+						arrkey[i] = rand() % 20000;
 					}
 
-					DeleteArray(lpArray);
-					DeleteChains(lpArrnode);
+					LPARRAY lpArray = CreateArray(len);
+					LPARRNODE lpArrnode = CreateChains(len);
 
+					for (UINT64 i = 0; i < len; ++i)
+					{
+						CONST UINT64 h = hashes[better](arrkey[i], len);
+
+						OpenAddressing(lpArray, h, arrkey[i], NULL);
+						Chains(lpArrnode, h, arrkey[i], NULL);
+					}
+
+					UINT64 finds[2] CLEARARR;
+					DWORD times[2];
+
+					times[0] = GetTickCount();
+
+					for (UINT64 i = 0; i < len; ++i)
+					{
+						finds[0] += FindArray(lpArray, arrkey[i], hashes[better]);
+					}
+
+					times[0] = GetTickCount() - times[0];
+
+					times[1] = GetTickCount();
+
+					for (UINT64 i = 0; i < len; ++i)
+					{
+						finds[1] += FindChains(lpArrnode, arrkey[i], hashes[better]);
+					}
+
+					times[1] = GetTickCount() - times[1];
+
+					DeleteChains(lpArrnode);
+					DeleteArray(lpArray);
+
+					for (UINT64 i = 0; i < 2; ++i)
+					{
+						TCHAR outputBuffer[IOBUFFER] CLEARARR;
+						CONST INT iResult_stprintf_s = _stprintf_s(outputBuffer, IOBUFFER, _T("%I64u %d"), finds[i], times[i]);
+						if (iResult_stprintf_s <= FALSE)
+						{
+							return EXIT_FAILURE;
+						}
+
+						CONST BOOL bResultSetWindowText = SetWindowText(edits[i + 5], outputBuffer);
+						if (bResultSetWindowText == FALSE)
+						{
+							return EXIT_FAILURE;
+						}
+					}
 					break;
 				}
 			}
