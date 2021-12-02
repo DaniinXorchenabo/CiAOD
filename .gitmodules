@@ -1,0 +1,3 @@
+[submodule "laba5"]
+	path = laba5
+	url = https://github.com/IDesteny/InternalSortingAlgorithms.git
