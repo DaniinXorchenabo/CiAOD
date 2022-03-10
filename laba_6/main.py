@@ -13,7 +13,7 @@ from fastapi import FastAPI, Path
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from sort import Sorts, write_random_data_in_file, simple_file_generator, get_file_gen, get_write_file_func
+from sort import Sorts, simple_file_generator
 
 app = FastAPI()
 DATA_FILE_NAME: Optional[str] = None
@@ -27,10 +27,10 @@ class SortType(str, enum.Enum):
 def sort_func_decorator(func):
     def decorator(*args, data=None, get_history: bool = False, count_of_read: bool = False,
                   count_of_write: bool = False, **kwargs):
-        write_random_data_in_file(args[0], len_=len(data), data_=data)
+        Sorts.write_random_data_in_file(args[0], len_=len(data), data_=data)
 
-        current_file_reader = get_file_gen(get_history=get_history, count_of_read=count_of_read)
-        writer = get_write_file_func(count_of_write=count_of_write)
+        current_file_reader = Sorts.get_file_gen(get_history=get_history, count_of_read=count_of_read)
+        writer = Sorts.get_write_file_func(count_of_write=count_of_write)
 
         time = func(current_file_reader, writer, *args, data=data, **kwargs)
 
@@ -94,10 +94,9 @@ async def get_ui():
 async def get_graphs_data(len_file: Optional[int], data_: Optional[str] = None,
                           get_history: bool = False, count_of_read: bool = False,
                           count_of_write: bool = False):
-    print(data_, [data_])
     assert (len_file is None or data_ is None) or len_file == len(data_)
     assert len_file is not None or data_ is not None
-    data = write_random_data_in_file(DATA_FILE_NAME, len_=len_file or len(data_), data_=data_)
+    data = Sorts.write_random_data_in_file(DATA_FILE_NAME, len_=len_file or len(data_), data_=data_)
 
     return {s: sorts_func[s](*sorts_args[s][0], **(sorts_args[s][1] | {
         'len_file': len_file, 'data': data, 'get_history': get_history,
@@ -121,6 +120,7 @@ async def get_files_names(from_: int, to_: int, filename: str):
 
 
 app.mount("/public", StaticFiles(directory=join(split(__file__)[0], 'public')), name="static")
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="localhost", port=9010, reload=True)
