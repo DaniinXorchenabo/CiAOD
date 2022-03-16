@@ -20,8 +20,8 @@ class Sorts(ABC):
     two_phase_sorting_by_simple_merge: Callable
     one_phase_sorting_by_simple_merge: Callable
 
-    @staticmethod
-    def two_phase(file_generator, file_writer, *args):
+    @classmethod
+    def two_phase(cls, file_generator, file_writer, *args):
         def two_phase_sorting_by_simple_merge(base_file: str, part_file1: str, part_file2: str, *args,
                                               len_file: Optional[int] = None, **kwargs):
             if len_file is None:
@@ -50,7 +50,7 @@ class Sorts(ABC):
                     f1 = file_generator(part1_)
                     f2 = file_generator(part2_)
                     for _ in range(int(len_file / module + 0.5) + 1):
-                        for i in get_values(f1, f2, m):
+                        for i in cls.get_values(f1, f2, m):
                             file_writer(i, sep='', end='', file=base_)
                 module <<= 1
                 m <<= 1
@@ -60,8 +60,8 @@ class Sorts(ABC):
 
         return two_phase_sorting_by_simple_merge
 
-    @staticmethod
-    def one_phase(file_generator, file_writer, *args):
+    @classmethod
+    def one_phase(cls, file_generator, file_writer, *args):
         def one_phase_sorting_by_simple_merge(base_file: str, part_file1: str, part_file2: str,
                                               part_file3: str, part_file4: str, *args,
                                               len_file: Optional[int] = None, **kwargs):
@@ -92,7 +92,7 @@ class Sorts(ABC):
                     f1 = file_generator(part1_)
                     f2 = file_generator(part2_)
                     for _ind in range(int(len_file / module + 0.5) + 1):
-                        for ind, i in enumerate(get_values(f1, f2, m)):
+                        for ind, i in enumerate(cls.get_values(f1, f2, m)):
                             file_writer(i, sep='', end='', file=(part3_ if _ind % 2 == 0 else part4_))
 
                 m = module
@@ -107,7 +107,7 @@ class Sorts(ABC):
 
                 f1 = file_generator(part1_)
                 f2 = file_generator(part2_)
-                for i in get_values(f1, f2, len_file):
+                for i in cls.get_values(f1, f2, len_file):
                     file_writer(i, sep='', end='', file=base_)
 
             time_ = process_time_ns() - time_
