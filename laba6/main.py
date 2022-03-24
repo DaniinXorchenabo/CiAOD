@@ -108,15 +108,14 @@ async def get_graphs_data(len_file: Optional[int], data_: Optional[str] = None,
 async def get_files_names():
     print(*os.walk(join(dirname(__file__), 'files')), sep='\n')
     return [join(split(i[0])[1], j) for i in os.walk(join(dirname(__file__), 'files'))
-            if split(i[0])[1] in ['one_phase', 'two_phase']
-            for j in i[2]]
+            if split(i[0])[1] in ['one_phase', 'two_phase'] or (split(i[0])[1] == 'files')
+            for j in i[2]] + ['data.txt']
 
 
 @app.get("/get_part_file")
 async def get_files_names(from_: int, to_: int, filename: str):
     with open(join(dirname(__file__), 'files', filename), 'r', encoding='utf-8') as f:
-        return ''.join([i for ind, i in islice(enumerate(simple_file_generator(f)), from_, to_) if
-                        True or (not print(ind, from_ <= ind <= to_) and from_ <= ind <= to_)])
+        return ''.join([i for ind, i in islice(enumerate(simple_file_generator(f)), from_, to_)])
 
 
 app.mount("/public", StaticFiles(directory=join(split(__file__)[0], 'public')), name="static")
