@@ -67,7 +67,7 @@ const button_handler = (event) => {
             'sort': `get_sorts_time?get_history=${get_history}&len_file=${len_file}&count_of_read=${get_count_of_read}&count_of_write=${get_count_of_write}&${unsorted_data?'data_=' + unsorted_data: ''}`
         }
         const id_to_result_f = {
-            "part_of_file": (data) => {document.getElementById('part_of_file_output').value = data},
+            "part_of_file": (data) => {document.getElementById('part_of_file_output').value += data + "\n"},
             "sort": i => {
                 const data_from_server = JSON.parse(i);
                 console.log(data_from_server);
