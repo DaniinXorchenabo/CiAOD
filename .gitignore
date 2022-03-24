@@ -2,3 +2,4 @@
 /**/.idea/**/*
 /**/[Cc]make-[Bb]uild-*/**/*
 /**/lab*/files/**/*
+/**/__pycache__/**/*
