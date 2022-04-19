@@ -1,3 +1,5 @@
+// import sort_displayed_gen;
+
 const button_handler = (event) => {
     console.log(event.target.id);
     setTimeout(() => {
@@ -64,14 +66,33 @@ const button_handler = (event) => {
                 `&external_sort_type=${external_sort_type}`,
                 `${unsorted_data ? '&data_=' + unsorted_data : ''}`,
             ].reduce((last, i) => last + i),
+            "many_sorts": [
+                "get_many_sorts?",
+                `get_history=${get_history}`,
+                `&len_file=${len_file}`,
+                `&count_of_read=${get_count_of_read}`,
+                `&count_of_write=${get_count_of_write}`,
+                `&type_internal_sort=${pre_sort_type}`,
+                `&external_sort_type=${external_sort_type}`,
+                `${unsorted_data ? '&data_=' + unsorted_data : ''}`,
+            ].reduce((last, i) => last + i),
         };
 
-        const id_to_result_f = {
-            "part_of_file": (data) => {
-                document.getElementById('part_of_file_output').value += data + "\n"
-            },
-            "sort": i => {
+        const displayed_sorts_func = i => {
                 const data_from_server = JSON.parse(i);
+
+                const patent_box =  document.getElementById("patent_box");
+                [...patent_box.children].filter(i => i.id && !(i.id in data_from_server)).map(i => patent_box.removeChild(i));
+                const ids = [...patent_box.children].filter(i => i.id).map(i => i.id);
+                patent_box.innerHTML += [...Object.entries(data_from_server)]
+                    .filter(([k, v]) => !(k in ids))
+                    .map(([k, v]) => sort_displayed_gen(k))
+                    .reduce((last, i) => last + i);
+
+
+                [...document.querySelectorAll('button')].map(
+                    el => el.addEventListener('click', button_handler, {once: false}))
+
                 console.log(data_from_server);
                 [...Object.entries(data_from_server)].map(([sort_type, v]) => {
                     [...Object.entries(v)].map(([key, val]) => {
@@ -83,15 +104,29 @@ const button_handler = (event) => {
                 });
                 ["one", "two"].map(i => {
                     if (data_from_server[i]){
-                         document.getElementById(i).style.display = '';
+                         const item = document.getElementById(i);
+                         if (item) {
+                             item.style.display = '';
+                         }
                     } else {
-                        document.getElementById(i).style.display = 'none';
+                        const item = document.getElementById(i);
+                         if (item) {
+                             item.style.display = 'none';
+                         }
                     }
                     return i;
 
                 });
+            }
+
+        const id_to_result_f = {
+            "part_of_file": (data) => {
+                document.getElementById('part_of_file_output').value += data + "\n"
             },
-        }
+            "sort": displayed_sorts_func,
+            "many_sorts": displayed_sorts_func,
+        };
+
         if (alert_text === '') {
             xhr.open(
                 'GET',

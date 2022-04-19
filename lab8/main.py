@@ -7,6 +7,7 @@ from typing import Optional, IO, Generator, Iterable, Iterator
 from random import randint
 from math import log2
 from itertools import islice
+from functools import reduce
 
 import uvicorn
 from fastapi import FastAPI, Path
@@ -14,7 +15,6 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from sort import Sorts, simple_file_generator
-
 
 TypeInternalSort = Sorts.PreInternalSort.TypeInternalSort
 
@@ -42,7 +42,8 @@ def sort_func_decorator(func):
 
         current_file_reader = Sorts.get_file_gen(get_history=get_history, count_of_read=count_of_read)
         writer = Sorts.get_write_file_func(count_of_write=count_of_write)
-        internal_sorter = Sorts.PreInternalSort.get_internal_pre_sorter(type_internal_sort, chink_size_foe_internal_sort)
+        internal_sorter = Sorts.PreInternalSort.get_internal_pre_sorter(type_internal_sort,
+                                                                        chink_size_foe_internal_sort)
 
         time = func(current_file_reader, writer, internal_sorter, *args, data=data, **kwargs)
 
@@ -138,6 +139,40 @@ async def get_graphs_data(
             )
         )
     }
+
+
+@app.get("/get_many_sorts")
+async def get_many_sorts(
+        len_file: Optional[int],
+        data_: Optional[str] = None,
+        get_history: bool = False,
+        count_of_read: bool = False,
+        count_of_write: bool = False,
+        external_sort_type: SortType = SortType.one,
+        type_internal_sort: TypeInternalSort = TypeInternalSort.quick_sort,
+):
+    assert (len_file is None or data_ is None) or len_file == len(data_)
+    assert len_file is not None or data_ is not None
+
+    data = Sorts.write_random_data_in_file(DATA_FILE_NAME, len_=len_file or len(data_), data_=data_)
+
+    return reduce(
+        lambda last, i: last | i,
+        [
+            {k + f"_{ind}_percent": v for k, v in (
+                await get_graphs_data(
+                    len_file=None,
+                    data_=data,
+                    get_history=get_history,
+                    count_of_read=count_of_read,
+                    count_of_write=count_of_write,
+                    external_sort_type=external_sort_type,
+                    type_internal_sort=type_internal_sort,
+                    chink_size_foe_internal_sort=i
+                )
+            ).items()}
+            for ind, i in enumerate(range(len(data) // 100, len(data) // 100 * 10 + 1, len(data) // 100), 1)]
+    )
 
 
 @app.get("/get_files")
