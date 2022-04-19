@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/public/stiles/base_stiles.css">
+    <link rel="stylesheet" href="/public/stiles/table_stiles.css">
+    <link rel="stylesheet" href="/public/stiles/layout_stiles.css">
+
+    <script defer src="/public/scripts/validation.js"></script>
+    <script defer src="/public/scripts/connect_with_server.js"></script>
+
+
+</head>
+<body>
+<h1>Сравнение сортировок</h1>
+<div class="parent_box">
+
+    <div class="child input_box_parent">
+        <div class="array_box">
+            <div class="input_box">
+                <test>Количество элементов:</test>
+                <input id="count_of_elements" value="1000" placeholder="Введите число"
+                       oninput="correcting_number('count_of_elements')"
+                       onchange="corrected_number('count_of_elements')"/>
+
+            </div>
+            <div class="input_box">
+                <test>Количество элементов для внутренней предсортировки:</test>
+                <input id="count_of_elements_for_internal_pre_sort" value="100" placeholder="Введите число"
+                       oninput="correcting_number('count_of_elements')"
+                       onchange="corrected_number('count_of_elements')"/>
+
+            </div>
+            <div class="input_box">
+                <text>Какой тип внутренней сортировки использовать?</text>
+                <select id="change_internal_pre_sort_type">
+
+                </select>
+            </div>
+                        <div class="input_box">
+                <text>Какой тип внешней сортировки использовать?</text>
+                <select id="change_external_sort_type">
+                    <option value="one">Однофазную</option>
+                    <option value="two">Двухфазную</option>
+                </select>
+            </div>
+            <div class="input_box">
+                <test>Вывести результаты сортировок?</test>
+                <input id="get_sorted_data" checked type="checkbox"/>
+            </div>
+            <div class="input_box">
+                <test>Вывести количество чтений?</test>
+                <input id="get_count_of_read" checked type="checkbox"/>
+            </div>
+            <div class="input_box">
+                <test>Вывести количество записей?</test>
+                <input id="get_count_of_write" checked type="checkbox"/>
+            </div>
+            <div class="input_box">
+                <test>Введите сортируемые данные</test>
+            </div>
+            <div class="input_box">
+                <textarea placeholder="Данные будут сгенерированны автоматически"
+                          id="unsorted_data"
+                          oninput="change_count_items_with_unsorted_data(event)"></textarea>
+            </div>
+            <button id="sort">Отсортироваль</button>
+
+        </div>
+
+        <div class="array_box" id="two">
+            <h2>Двухфазная</h2>
+            <div class="input_box">
+                <text>Время (в наносекундах):</text>
+                <text id="two_time">?</text>
+            </div>
+            <div class="input_box">
+                <text>количество чтений из файла</text>
+                <text id="two_count_of_read">?</text>
+            </div>
+            <div class="input_box">
+                <text>количество записей в файл</text>
+                <text id="two_count_of_write">?</text>
+            </div>
+            <div class="input_box">
+                <textarea disabled id="two_history"></textarea>
+            </div>
+        </div>
+
+        <div class="array_box" id="one">
+            <h2>Однофазная:</h2>
+            <div class="input_box">
+                <text>Время (в наносекундах):</text>
+                <text id="one_time">?</text>
+            </div>
+            <div class="input_box">
+                <text>количество чтений из файла</text>
+                <text id="one_count_of_read">?</text>
+            </div>
+            <div class="input_box">
+                <text>количество записей в файл</text>
+                <text id="one_count_of_write">?</text>
+            </div>
+            <div class="input_box">
+                <textarea disabled id="one_history"></textarea>
+            </div>
+        </div>
+
+        <div class="array_box">
+            <h2>Вывести интервал</h2>
+            <div class="input_box">
+                <text>Из Файла</text>
+                <select id="select_file">
+
+                </select>
+            </div>
+            <div class="input_box">
+                <text>От</text>
+                <input id="part_of_file_from" value="0" placeholder="Введите число"
+                       oninput="correcting_number('part_of_file_from')"
+                       onchange="corrected_number('part_of_file_from')"/>
+                <text>до</text>
+                <input id="part_of_file_to" value="10" placeholder="Введите число"
+                       oninput="correcting_number('part_of_file_to')"
+                       onchange="corrected_number('part_of_file_to')"/>
+            </div>
+            <button id="part_of_file">Вывести</button>
+            <div class="input_box">
+                <textarea disabled id="part_of_file_output"></textarea>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+</body>
+</html>
