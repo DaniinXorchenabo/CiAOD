@@ -4,7 +4,7 @@ const sort_displayed_gen = (sort_type) => {
         "selection": "Методом слияния",
     }
 
-    const data = `
+    return `
         <div class="array_box" id="${sort_type}">
             <h2>${
                     [...Object.entries(headers)]
@@ -28,5 +28,4 @@ const sort_displayed_gen = (sort_type) => {
             </div>
         </div>
     `;
-    return data;
 }

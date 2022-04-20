@@ -79,45 +79,74 @@ const button_handler = (event) => {
         };
 
         const displayed_sorts_func = i => {
-                const data_from_server = JSON.parse(i);
+            const data_from_server = JSON.parse(i);
 
-                const patent_box =  document.getElementById("patent_box");
-                [...patent_box.children].filter(i => i.id && !(i.id in data_from_server)).map(i => patent_box.removeChild(i));
-                const ids = [...patent_box.children].filter(i => i.id).map(i => i.id);
-                patent_box.innerHTML += [...Object.entries(data_from_server)]
-                    .filter(([k, v]) => !(k in ids))
+            const patent_box = document.getElementById("patent_box");
+            [...patent_box.children]
+                .filter(i => i.id && !(i.id in data_from_server))
+                .map(i => patent_box.removeChild(i));
+            const ids = [...patent_box.children]
+                .filter(i => i.id)
+                .map(i => i.id.toString());
+            console.log(
+                ids,
+                [...Object.entries(data_from_server)]
+                    .map(([k, v]) => (ids.some(id_ => id_.toString() === k.toString())))
+            );
+
+            const new_ids = [...Object.entries(data_from_server)]
+                .filter(([k, v]) => !(ids.some(id_ => id_.toString() === k.toString())));
+
+            if (new_ids.length > 0) {
+                patent_box.innerHTML += new_ids
                     .map(([k, v]) => sort_displayed_gen(k))
                     .reduce((last, i) => last + i);
-
-
-                [...document.querySelectorAll('button')].map(
-                    el => el.addEventListener('click', button_handler, {once: false}))
-
-                console.log(data_from_server);
-                [...Object.entries(data_from_server)].map(([sort_type, v]) => {
-                    [...Object.entries(v)].map(([key, val]) => {
-                        const el = document.getElementById(`${sort_type}_${key}`);
-                        el.value = val;
-                        el.textContent = val;
-
-                    });
-                });
-                ["selection"].map(i => {
-                    if (data_from_server[i]){
-                         const item = document.getElementById(i);
-                         if (item) {
-                             item.style.display = '';
-                         }
-                    } else {
-                        const item = document.getElementById(i);
-                         if (item) {
-                             item.style.display = 'none';
-                         }
-                    }
-                    return i;
-
-                });
             }
+
+
+            [...document.querySelectorAll('button')].map(
+                el => el.addEventListener('click', button_handler, {once: false}))
+
+            console.log(data_from_server);
+            [...Object.entries(data_from_server)].map(([sort_type, v]) => {
+                [...Object.entries(v)].map(([key, val]) => {
+                    const el = document.getElementById(`${sort_type}_${key}`);
+                    el.value = val;
+                    el.textContent = val;
+
+                });
+            });
+
+            document.getElementById("get_sorted_data").checked = get_history;
+            document.getElementById("get_count_of_read").checked = get_count_of_read;
+            document.getElementById("get_count_of_write").checked = get_count_of_write;
+            document.getElementById("count_of_elements").value = len_file;
+            document.getElementById("count_of_elements_for_internal_pre_sort").value = pre_sort_count;
+            document.getElementById('change_internal_pre_sort_type').value = pre_sort_type;
+            document.getElementById("change_external_sort_type").value = external_sort_type;
+            document.getElementById(`part_of_file_from`).value = start;
+            document.getElementById(`part_of_file_to`).value = end;
+            document.getElementById('select_file').value = target_file;
+            if (document.getElementById('unsorted_data')) {
+                document.getElementById('unsorted_data').value = unsorted_data;
+            }
+
+            ["selection"].map(i => {
+                if (data_from_server[i]) {
+                    const item = document.getElementById(i);
+                    if (item) {
+                        item.style.display = '';
+                    }
+                } else {
+                    const item = document.getElementById(i);
+                    if (item) {
+                        item.style.display = 'none';
+                    }
+                }
+                return i;
+
+            });
+        }
 
         const id_to_result_f = {
             "part_of_file": (data) => {

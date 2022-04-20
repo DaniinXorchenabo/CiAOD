@@ -35,7 +35,7 @@ def sort_func_decorator(func):
             count_of_read: bool = False,
             count_of_write: bool = False,
             type_internal_sort: TypeInternalSort,
-            chink_size_foe_internal_sort: int,
+            chink_size_for_internal_sort: int,
             **kwargs
     ):
         Sorts.write_random_data_in_file(args[0], len_=len(data), data_=data)
@@ -43,29 +43,36 @@ def sort_func_decorator(func):
         file_control_class = create_file_iterator_class(
             count_of_reads=count_of_read,
             count_of_write=count_of_write,
+            get_history=get_history,
         )
         internal_sorter = Sorts.PreInternalSort.get_internal_pre_sorter(type_internal_sort,
-                                                                        chink_size_foe_internal_sort)
+                                                                        chink_size_for_internal_sort)
 
-        time = func(file_control_class, internal_sorter, *args, data=data, **kwargs)
+        time = func(
+            file_control_class,
+            internal_sorter,
+            *args,
+            data=data,
+            chink_size_for_internal_sort=chink_size_for_internal_sort,
+            **kwargs)
 
         _d = file_control_class.return_static_variables()
 
         if 'history' in _d and isinstance(_d, dict) and bool(_d['history']):
-            with open(next(iter(_d['history'])).name, 'r', encoding='utf-8') as f:
-                _d['history'][f] = f.read()
+            # with open(next(iter(_d['history'])), 'r', encoding='utf-8') as f:
+            #     _d['history'][f] = f.read()
 
-            _m = [(split(key.name)[-1], val) for key, val in _d['history'].items()]
+            _m = [i for i in _d['history']]
             max_len_filename = len(max(_m, key=lambda i: len(i[0]))[0])
         else:
             _m = max_len_filename = None
-        print(_d)
+        # print(_d)
         return {
             "time": time,
             'count_of_read': _d['count_of_reads'],
             'count_of_write': _d['count_of_writes'],
             'history': _m and '\n'.join(
-                [f'{key.ljust(max_len_filename, " ")}:{" ".join(list(val))}' for [key, val] in _m])
+                [i for i in _m])
         }
 
     return decorator
@@ -107,7 +114,7 @@ async def get_graphs_data(
         count_of_write: bool = False,
         external_sort_type: SortType = SortType.selection,
         type_internal_sort: TypeInternalSort = TypeInternalSort.quick_sort,
-        chink_size_foe_internal_sort: int = 100,
+        chink_size_for_internal_sort: int = 100,
 
 ):
 
@@ -128,7 +135,7 @@ async def get_graphs_data(
                         'count_of_read': count_of_read,
                         "count_of_write": count_of_write,
                         "type_internal_sort": type_internal_sort,
-                        "chink_size_foe_internal_sort": chink_size_foe_internal_sort,
+                        "chink_size_for_internal_sort": chink_size_for_internal_sort,
 
                     }
             )
@@ -163,7 +170,7 @@ async def get_many_sorts(
                     count_of_write=count_of_write,
                     type_internal_sort=type_internal_sort,
                     external_sort_type=external_sort_type,
-                    chink_size_foe_internal_sort=i
+                    chink_size_for_internal_sort=i
                 )
             ).items()}
             for ind, i in enumerate(range(len(data) // 100, len(data) // 100 * 10 + 1, len(data) // 100), 1)]

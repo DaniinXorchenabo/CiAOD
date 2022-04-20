@@ -9,11 +9,13 @@ class FileIteratorAbstract(ABC):
         self.file_io.seek(0, 0)
         self.current_pos = 0
 
+    @abstractmethod
     def pointer_move_absolute(self, new_position: int):
         self.file_io.seek(new_position, 0)
         self.current_pos = new_position
         return self.current_pos
 
+    @abstractmethod
     def pointer_move_relative(self, setup: int):
         self.file_io.seek(setup, 1)
         self.current_pos += setup
@@ -38,6 +40,7 @@ class FileIteratorAbstract(ABC):
         self.pointer_move_absolute(cursor)
         return data
 
+    @abstractmethod
     def move_to_tail(self):
         self.file_io.seek(0, 2)
         self.current_pos = self.file_io.tell()
@@ -68,10 +71,37 @@ class FileIteratorAbstract(ABC):
 def create_file_iterator_class(
         count_of_reads: bool = False,
         count_of_write: bool = False,
+        get_history: bool = False,
 ) -> Type[FileIteratorAbstract]:
-    static_variables = {"count_of_reads": 0, "count_of_writes": 0}
+    static_variables = {"count_of_reads": 0, "count_of_writes": 0, 'history': []}
 
-    class FileIterator(FileIteratorAbstract, ABC):
+    def get_history_func(self: FileIteratorAbstract):
+        cursor = self.current_pos
+        self.file_io.seek(0, 0)
+        st = list(" " + " ".join(list(self.file_io.read().decode('utf-8'))))
+
+        if cursor * 2 >= len(st):
+            st += ["*"]
+        else:
+            st[cursor * 2] = "*"
+        data = ''.join(st)
+        self.file_io.seek(cursor, 0)
+        return data
+
+    class _FileIterator(FileIteratorAbstract):
+        def read(self, count_chars: int = 1, __static_variables: dict[str, int] = static_variables):
+            data = super().read(count_chars)
+            static_variables['history'].append(get_history_func(self))
+            return data
+
+        def write(self, char: str | list[str], __static_variables: dict[str, int] = static_variables):
+            data = super().write(char)
+            static_variables['history'].append(get_history_func(self))
+            return data
+
+    ParentClass: Type[FileIteratorAbstract] = (_FileIterator if get_history is True else FileIteratorAbstract)
+
+    class FileIterator(ParentClass, ABC):
 
         @staticmethod
         def return_static_variables():
@@ -86,15 +116,40 @@ def create_file_iterator_class(
                 return super().read(count_chars)
 
         if count_of_write is True:
-            def write(self, char: bytes, __static_variables: dict[str, int] = static_variables):
-                static_variables['count_of_writes'] += len(char)
+            def write(self, char: str | list[str], __static_variables: dict[str, int] = static_variables):
+                static_variables['count_of_writes'] += len(''.join(char)) if isinstance(char, list) else len(char)
                 return super().write(char)
         else:
-            def write(self, char: bytes):
+            def write(self, char: str | list[str]):
                 return super().write(char)
 
-    return FileIterator
+        if get_history is True:
+            def pointer_move_absolute(self, new_position: int, __static_variables: dict[str, int] = static_variables):
+                data = super().pointer_move_absolute(new_position)
+                static_variables['history'].append(get_history_func(self))
+                return data
 
+            def pointer_move_relative(self, setup: int, __static_variables: dict[str, int] = static_variables):
+                data = super().pointer_move_relative(setup)
+                static_variables['history'].append(get_history_func(self))
+                return data
+
+            def move_to_tail(self, __static_variables: dict[str, int] = static_variables):
+                data = super().move_to_tail()
+                static_variables['history'].append(get_history_func(self))
+                return data
+
+        else:
+            def pointer_move_absolute(self, new_position: int):
+                return super().pointer_move_absolute(new_position)
+
+            def pointer_move_relative(self, setup: int):
+                return super().pointer_move_relative(setup)
+
+            def move_to_tail(self):
+                return super().move_to_tail()
+
+    return FileIterator
 
 # FileIterator = create_file_iterator_class()
 #

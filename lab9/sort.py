@@ -11,23 +11,26 @@ import enum
 from file_iter_controller import FileIteratorAbstract
 
 
-# from random
-
-
 class Sorts(ABC):
     selection_sort: Callable
 
     @classmethod
     def selection_sort_producer(cls, file_control_class: Type[FileIteratorAbstract], pre_sorter, *args):
 
-        def selection_sort_(base_file: str, *args, len_file: Optional[int] = None, **kwargs):
-            chink_size = 3
+        def selection_sort_(
+                base_file: str,
+                *args,
+                len_file: Optional[int] = None,
+                chink_size_for_internal_sort : int = 1,
+                **kwargs
+        ):
+            chink_size = chink_size_for_internal_sort
+            print(chink_size)
             if len_file is None:
-                with open(base_file, 'rb', encoding='utf-8') as base:
+                with open(base_file, 'rb') as base:
                     len_file = len(base.read())
 
             time_ = process_time_ns()
-            count_iteration = float('inf')
 
             begin_current_fragment = len_file
             begin_last_fragment = len_file
@@ -48,7 +51,7 @@ class Sorts(ABC):
                 file_controller.print_file()
                 file_controller.write(sorted_data)
                 file_controller.print_file()
-                print('='*10)
+                # print('='*10)
                 while begin_current_fragment > 0:
 
                     begin_last_fragment = begin_current_fragment
@@ -85,6 +88,9 @@ class Sorts(ABC):
                             file_controller.print_file()
                             item = sorted_data.pop(0)
                         else:
+                            if (last_fragment_pointer > len_file):
+                                current_item_from_last_fragment = chr(65536)
+                                continue
                             current_fragment_pointer = file_controller.write(current_item_from_last_fragment)
                             file_controller.print_file()
                             file_controller.pointer_move_absolute(last_fragment_pointer)
@@ -95,7 +101,7 @@ class Sorts(ABC):
                             file_controller.print_file()
                             file_controller.pointer_move_absolute(current_fragment_pointer)
                             file_controller.print_file()
-                    print('%'*10)
+                    # print('%'*10)
                     while True:
                         if item <= current_item_from_last_fragment:
                             current_fragment_pointer = file_controller.write(item)
@@ -115,20 +121,6 @@ class Sorts(ABC):
                             last_fragment_pointer = file_controller.current_pos
                             file_controller.pointer_move_absolute(current_fragment_pointer)
                             file_controller.print_file()
-                    # while current_fragment_pointer < last_fragment_pointer:
-                    #     current_fragment_pointer = file_controller.write(current_item_from_last_fragment)
-                    #     file_controller.print_file()
-                    #     file_controller.pointer_move_absolute(last_fragment_pointer)
-                    #     file_controller.print_file()
-                    #     current_item_from_last_fragment = file_controller.read()
-                    #     file_controller.print_file()
-                    #     last_fragment_pointer = file_controller.current_pos
-                    #     file_controller.pointer_move_absolute(current_fragment_pointer)
-                    #     file_controller.print_file()
-
-
-
-
 
             time_ = process_time_ns() - time_
             return time_
@@ -420,7 +412,7 @@ class Sorts(ABC):
 
                 return new_func
 
-            @pre_internal_sort_decorator
+            # @pre_internal_sort_decorator
             def quicksort(a: list | str):
                 def _quicksort(nums):
                     if len(nums) <= 1:
