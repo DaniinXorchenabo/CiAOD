@@ -67,6 +67,10 @@ class FileIteratorAbstract(ABC):
     def return_static_variables():
         pass
 
+    @abstractmethod
+    def show_op(self, sorted_array: list):
+        pass
+
 
 def create_file_iterator_class(
         count_of_reads: bool = False,
@@ -139,6 +143,11 @@ def create_file_iterator_class(
                 static_variables['history'].append(get_history_func(self))
                 return data
 
+            def show_op(self, sorted_array: list, __static_variables: dict[str, int] = static_variables):
+                __static_variables['history'][-1] += "\t<OP:" + str(sorted_array) + ">"
+
+
+
         else:
             def pointer_move_absolute(self, new_position: int):
                 return super().pointer_move_absolute(new_position)
@@ -148,6 +157,10 @@ def create_file_iterator_class(
 
             def move_to_tail(self):
                 return super().move_to_tail()
+
+            def show_op(self, sorted_array: list):
+                pass
+
 
     return FileIterator
 

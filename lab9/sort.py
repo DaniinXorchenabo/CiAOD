@@ -42,15 +42,17 @@ class Sorts(ABC):
                 begin_last_fragment = begin_current_fragment
                 begin_current_fragment -= chink_size
                 file_controller.pointer_move_absolute(begin_current_fragment)
-                file_controller.print_file()
+                 
 
                 unsorted_data: str = file_controller.read(chink_size)
-                file_controller.print_file()
+                 
                 sorted_data = list(pre_sorter(unsorted_data))
+                file_controller.show_op(sorted_data)
                 file_controller.pointer_move_relative(-chink_size)
-                file_controller.print_file()
+                 
                 file_controller.write(sorted_data)
-                file_controller.print_file()
+                file_controller.show_op([])
+                 
                 # print('='*10)
                 while begin_current_fragment > 0:
 
@@ -61,10 +63,11 @@ class Sorts(ABC):
                     chink_size = chink_size + (_begin_current_fragment - begin_current_fragment)
 
                     file_controller.pointer_move_absolute(begin_current_fragment)
-                    file_controller.print_file()
+                     
                     unsorted_data = file_controller.read(chink_size)
-                    file_controller.print_file()
+                     
                     sorted_data = list(pre_sorter(unsorted_data))
+                    file_controller.show_op(sorted_data)
 
                     current_fragment_pointer = begin_current_fragment
                     last_fragment_pointer = begin_last_fragment
@@ -72,55 +75,58 @@ class Sorts(ABC):
                     if not bool(sorted_data):
                         break
                     file_controller.pointer_move_absolute(begin_current_fragment)
-                    file_controller.print_file()
+                     
                     item = sorted_data.pop(0)
 
+
                     file_controller.pointer_move_absolute(last_fragment_pointer)
-                    file_controller.print_file()
+                     
                     current_item_from_last_fragment = file_controller.read()
-                    file_controller.print_file()
+                     
                     last_fragment_pointer = file_controller.current_pos
                     file_controller.pointer_move_absolute(current_fragment_pointer)
-                    file_controller.print_file()
+                     
                     while bool(sorted_data):
                         if item <= current_item_from_last_fragment:
                             current_fragment_pointer = file_controller.write(item)
-                            file_controller.print_file()
+                             
+                            file_controller.show_op(sorted_data)
                             item = sorted_data.pop(0)
                         else:
                             if (last_fragment_pointer > len_file):
                                 current_item_from_last_fragment = chr(65536)
                                 continue
                             current_fragment_pointer = file_controller.write(current_item_from_last_fragment)
-                            file_controller.print_file()
+                             
                             file_controller.pointer_move_absolute(last_fragment_pointer)
-                            file_controller.print_file()
+                             
                             current_item_from_last_fragment = file_controller.read()
-                            file_controller.print_file()
+                             
                             last_fragment_pointer = file_controller.current_pos
-                            file_controller.print_file()
+                             
                             file_controller.pointer_move_absolute(current_fragment_pointer)
-                            file_controller.print_file()
+                             
                     # print('%'*10)
                     while True:
                         if item <= current_item_from_last_fragment:
                             current_fragment_pointer = file_controller.write(item)
-                            file_controller.print_file()
+                            file_controller.show_op([])
+                             
                             break
                         else:
                             if (last_fragment_pointer > len_file):
                                 current_item_from_last_fragment = chr(65536)
                                 continue
                             current_fragment_pointer = file_controller.write(current_item_from_last_fragment)
-                            file_controller.print_file()
+                             
                             file_controller.pointer_move_absolute(last_fragment_pointer)
 
-                            file_controller.print_file()
+                             
                             current_item_from_last_fragment = file_controller.read()
-                            file_controller.print_file()
+                             
                             last_fragment_pointer = file_controller.current_pos
                             file_controller.pointer_move_absolute(current_fragment_pointer)
-                            file_controller.print_file()
+                             
 
             time_ = process_time_ns() - time_
             return time_
