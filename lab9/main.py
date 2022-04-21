@@ -1,10 +1,11 @@
 from os.path import join, split
+from time import process_time_ns
 from typing import Type, Callable, Any
 import enum
 from os.path import join, dirname, exists, split
 import os
 from typing import Optional, IO, Generator, Iterable, Iterator
-from random import randint
+from random import randint, choice
 from math import log2
 from itertools import islice
 from functools import reduce
@@ -196,14 +197,155 @@ async def get_sort_types():
 
 app.mount("/public", StaticFiles(directory=join(split(__file__)[0], 'public')), name="static")
 
+
+def quicksort(a: list | str):
+    def _quicksort(nums):
+        if len(nums) <= 1:
+            return nums
+        else:
+            q = choice(nums)
+        l_nums = [n for n in nums if n < q]
+
+        e_nums = [q] * nums.count(q)
+        b_nums = [n for n in nums if n > q]
+        return _quicksort(l_nums) + e_nums + _quicksort(b_nums)
+
+    return list(_quicksort(list(a)))
+
 if __name__ == "__main__":
+    """
+    7703125000
+    7656250000
+    10453125000
+    10500000000
+    13515625000
+    13656250000
+                   
+    109375000
+    
+    """
+    # iter_count = 1000
+    # arr_len = 100
+    # _arr = [randint(0, 10) for _ in range(arr_len)]
+    # arr = [[j for j in _arr] for _ in range(iter_count)]
+    # time_ = process_time_ns()
+    # for i in range(iter_count):
+    #     quicksort(arr[i])
+    # time_ = process_time_ns() - time_
+    # print(time_)
 
-    # with open("files/a.txt", "r+") as f:
+    count_iter = 10_000_000
+    len_file = 10_000
+    count_of_read = 1
+    a = 0
+    time_ = process_time_ns()
+    for j in range(count_iter):
+        a = 5_000_000 - j + a
+    time_ = process_time_ns() - time_
+
+    print(time_)
+    print(time_ / count_iter)
+
+    # count_iter = 10_000_000
+    # len_file = 10_000
+    # count_of_read = 1
+    #
+    # with open("files/data2.bin", "rb+") as f:
+    #     time_ = process_time_ns()
+    #     for j in range(count_iter // len_file):
+    #         for i in range(len_file//count_of_read):
+    #             f.write(b'1' * count_of_read)
     #     f.seek(0, 0)
-    #     f.write("t")
-    #     f.write("r")
+    #     time_ = process_time_ns() - time_
+    #
+    # print(time_)
+    #
+    # count_of_read = 1
+
+    # with open("files/data1.bin", "rb+") as f:
+    #     time_ = process_time_ns()
+    #     for j in range(count_iter // len_file):
+    #         for i in range(len_file//count_of_read):
+    #             f.read(count_of_read)
     #     f.seek(0, 0)
-    #     f.write("w")
+    #     time_ = process_time_ns() - time_
+    #
+    # print(time_)
 
 
-    uvicorn.run("main:app", host="localhost", port=9020, reload=True)
+    #
+    # count_of_read = 100
+    #
+    # with open("files/data1.bin", "rb+") as f:
+    #     time_ = process_time_ns()
+    #     for j in range(count_iter // len_file):
+    #         for i in range(len_file//count_of_read):
+    #             f.read(count_of_read)
+    #     f.seek(0, 0)
+    #     time_ = process_time_ns() - time_
+    #
+    # print(time_)
+
+    # count_iter = 1_000_000
+    #
+    # with open("files/data1.bin", "rb+") as f:
+    #     time_ = process_time_ns()
+    #     f.seek(5000, 0)
+    #     for _ in range(count_iter):
+    #         f.seek(1, 1)
+    #         f.seek(-1, 1)
+    #     time_ = process_time_ns() - time_
+    #
+    # print(time_)
+    #
+    # with open("files/data1.bin", "rb+") as f:
+    #     time_ = process_time_ns()
+    #     f.seek(5000, 0)
+    #     for _ in range(count_iter):
+    #         f.seek(5000, 1)
+    #         f.seek(-5000, 1)
+    #     time_ = process_time_ns() - time_
+    #
+    # print(time_)
+    #
+    # with open("files/data1.bin", "rb+") as f:
+    #     time_ = process_time_ns()
+    #
+    #     for _ in range(count_iter):
+    #         f.seek(0, 2)
+    #         f.seek(-9000, 2)
+    #     time_ = process_time_ns() - time_
+    #
+    # print(time_)
+    #
+    # with open("files/data1.bin", "rb+") as f:
+    #     time_ = process_time_ns()
+    #
+    #     for _ in range(count_iter):
+    #         f.seek(0, 2)
+    #         f.seek(-5, 2)
+    #     time_ = process_time_ns() - time_
+    #
+    # print(time_)
+    #
+    # with open("files/data1.bin", "r+") as f:
+    #     time_ = process_time_ns()
+    #
+    #     for _ in range(count_iter):
+    #         f.seek(0, 0)
+    #         f.seek(5000, 0)
+    #     time_ = process_time_ns() - time_
+    #
+    # print(time_)
+    #
+    # with open("files/data1.bin", "r+") as f:
+    #     time_ = process_time_ns()
+    #
+    #     for _ in range(count_iter):
+    #         f.seek(0, 0)
+    #         f.seek(5, 0)
+    #     time_ = process_time_ns() - time_
+    #
+    # print(time_)
+
+    uvicorn.run("main:app", host="localhost", port=9021, reload=True)
