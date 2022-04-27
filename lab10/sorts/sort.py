@@ -11,13 +11,13 @@ class AllSorts(Sorts6, Sorts7, Sorts8, Sorts9):
         class_type, *other = item
         class_type: SortType
         if class_type in [SortType.two6, SortType.one6]:
-            new_cls = Sorts6.__class_getitem__(other, *data)
+            new_cls = Sorts6.__class_getitem__(item, *data)
         elif class_type in [SortType.two7, SortType.one7]:
-            new_cls = Sorts7.__class_getitem__(other, *data)
+            new_cls = Sorts7.__class_getitem__(item, *data)
         elif class_type in [SortType.two8, SortType.one8]:
-            new_cls = Sorts8.__class_getitem__(other, *data)
+            new_cls = Sorts8.__class_getitem__(item, *data)
         elif class_type == SortType.selection:
-            new_cls = Sorts9.__class_getitem__(other, *data)
+            new_cls = Sorts9.__class_getitem__(item, *data)
         else:
             raise AttributeError(f"Некорректный тим {class_type}")
         return new_cls

@@ -110,8 +110,8 @@ class Sorts(AbstractSort):
         return one_phase_sorting_by_simple_merge
 
     def __class_getitem__(cls, data_, *item):
-        print(data_, *item)
-        file_generator, writer, *_ = data_
+        print(data_, item)
+        sort_class_type, file_generator, writer, *_ = data_
         new_cls = super().__class_getitem__( data_, *item )
         new_cls.two_phase_sorting_by_simple_merge = staticmethod(cls.two_phase_6(file_generator, writer))
         new_cls.one_phase_sorting_by_simple_merge = staticmethod(cls.one_phase_6(file_generator, writer))

@@ -137,8 +137,8 @@ class Sorts(AbstractPreSort):
 
     def __class_getitem__(cls, data_, *item):
         print(data_, *item)
-        file_control_class, internal_pre_sorter = data_
-        new_cls = super().__class_getitem__( data_, *item)
+        sort_class_type, file_control_class, internal_pre_sorter = data_
+        new_cls = super().__class_getitem__(data_, *item)
         new_cls.selection_sort = staticmethod(cls.selection_sort_producer(file_control_class, internal_pre_sorter))
 
         return new_cls

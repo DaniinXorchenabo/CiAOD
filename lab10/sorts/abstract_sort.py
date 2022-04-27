@@ -7,16 +7,29 @@ class AbstractSort(ABC):
 
     @staticmethod
     def write_random_data_in_file(filename: str, len_: int = 100, data_: Optional[str] = None):
-        with open(filename, 'w', encoding='utf-8') as base:
-            if data_ is None:
-                data_: str = ''.join([chr(randint(ord('0'), ord('9'))) for i in range(len_)])
-                print(data_, end='', sep='', file=base)
-            else:
-                print(data_, end='', sep='', file=base)
+        if filename.endswith('.bin'):
+            with open(filename, 'wb') as base:
+                if data_ is None:
+                    data_: bytes = bytes(''.join([chr(randint(ord('0'), ord('9'))) for i in range(len_)]), 'utf-8')
+                    base.write(data_)
+                else:
+                    print(type(data_))
+                    if isinstance(data_, bytes) is False:
+                        data_: bytes = bytes(data_, 'utf-8')
+                        print("**", type(data_))
+                    print("&&&:", type(data_))
+                    base.write(data_)
+        else:
+            with open(filename, 'w', encoding='utf-8') as base:
+                if data_ is None:
+                    data_: str = ''.join([chr(randint(ord('0'), ord('9'))) for i in range(len_)])
+                    print(data_, end='', sep='', file=base)
+                else:
+                    print(data_, end='', sep='', file=base)
         return data_
 
     @staticmethod
-    def get_file_gen(get_history: bool = False, count_of_read: bool = False):
+    def get_file_gen(get_history: bool = False, count_of_read: bool = False, **useless_kwargs):
         static_variables = {'count_of_read': 0, "history": dict()}
 
         if get_history is True and count_of_read is True:
@@ -110,7 +123,7 @@ class AbstractSort(ABC):
         return count_read_file_generator
 
     @staticmethod
-    def get_write_file_func(count_of_write: bool = False):
+    def get_write_file_func(count_of_write: bool = False, **useless_kwargs):
         static_variables = {'count_of_write': 0}
 
         if count_of_write is True:

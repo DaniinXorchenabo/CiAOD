@@ -73,11 +73,11 @@ class FileIteratorAbstract(ABC):
 
 
 def create_file_iterator_class(
-        count_of_reads: bool = False,
+        count_of_read: bool = False,
         count_of_write: bool = False,
         get_history: bool = False,
 ) -> Type[FileIteratorAbstract]:
-    static_variables = {"count_of_reads": 0, "count_of_writes": 0, 'history': []}
+    static_variables = {"count_of_read": 0, "count_of_write": 0, 'history': []}
 
     def get_history_func(self: FileIteratorAbstract):
         cursor = self.current_pos
@@ -93,12 +93,12 @@ def create_file_iterator_class(
         return data
 
     class _FileIterator(FileIteratorAbstract):
-        def read(self, count_chars: int = 1, __static_variables: dict[str, int] = static_variables):
+        def read(self, count_chars: int = 1, __static_variables: dict[str, list[str]] = static_variables):
             data = super().read(count_chars)
             static_variables['history'].append(get_history_func(self))
             return data
 
-        def write(self, char: str | list[str], __static_variables: dict[str, int] = static_variables):
+        def write(self, char: str | list[str], __static_variables: dict[str, list[str]] = static_variables):
             data = super().write(char)
             static_variables['history'].append(get_history_func(self))
             return data
@@ -111,9 +111,9 @@ def create_file_iterator_class(
         def return_static_variables():
             return static_variables
 
-        if count_of_reads is True:
+        if count_of_read is True:
             def read(self, count_chars: int = 1, __static_variables: dict[str, int] = static_variables):
-                static_variables["count_of_reads"] += count_chars
+                static_variables["count_of_read"] += count_chars
                 return super().read(count_chars)
         else:
             def read(self, count_chars: int = 1):
@@ -121,32 +121,33 @@ def create_file_iterator_class(
 
         if count_of_write is True:
             def write(self, char: str | list[str], __static_variables: dict[str, int] = static_variables):
-                static_variables['count_of_writes'] += len(''.join(char)) if isinstance(char, list) else len(char)
+                static_variables['count_of_write'] += len(''.join(char)) if isinstance(char, list) else len(char)
                 return super().write(char)
         else:
             def write(self, char: str | list[str]):
                 return super().write(char)
 
         if get_history is True:
-            def pointer_move_absolute(self, new_position: int, __static_variables: dict[str, int] = static_variables):
+            def pointer_move_absolute(self, new_position: int, __static_variables: dict[str, list[str]] = static_variables):
                 data = super().pointer_move_absolute(new_position)
                 static_variables['history'].append(get_history_func(self))
                 return data
 
-            def pointer_move_relative(self, setup: int, __static_variables: dict[str, int] = static_variables):
+            def pointer_move_relative(self, setup: int, __static_variables: dict[str, list[str]] = static_variables):
                 data = super().pointer_move_relative(setup)
                 static_variables['history'].append(get_history_func(self))
                 return data
 
-            def move_to_tail(self, __static_variables: dict[str, int] = static_variables):
+            def move_to_tail(self, __static_variables: dict[str, list[str]] = static_variables):
                 data = super().move_to_tail()
                 static_variables['history'].append(get_history_func(self))
                 return data
 
-            def show_op(self, sorted_array: list, __static_variables: dict[str, int] = static_variables):
-                __static_variables['history'][-1] += "\t<OP:" + str(sorted_array) + ">"
-
-
+            def show_op(self, sorted_array: list, __static_variables: dict[str, list[str]] = static_variables):
+                if bool(__static_variables['history']):
+                    __static_variables['history'][-1] += "\t<OP:" + str(sorted_array) + ">"
+                else:
+                    __static_variables['history'].append("\t<OP:" + str(sorted_array) + ">")
 
         else:
             def pointer_move_absolute(self, new_position: int):
@@ -160,7 +161,6 @@ def create_file_iterator_class(
 
             def show_op(self, sorted_array: list):
                 pass
-
 
     return FileIterator
 

@@ -55,31 +55,25 @@ const button_handler = (event) => {
 
         const id_to_url = {
             "part_of_file": `get_part_file?filename=${target_file}&from_=${start}&to_=${end}`,
-            'sort': [
-                `get_sorts_time?`,
-                `get_history=${get_history}`,
-                `&len_file=${len_file}`,
-                `&count_of_read=${get_count_of_read}`,
-                `&count_of_write=${get_count_of_write}`,
-                `&type_internal_sort=${pre_sort_type}`,
-                `&chink_size_foe_internal_sort=${pre_sort_count}`,
-                `&external_sort_type=${external_sort_type}`,
-                `${unsorted_data ? '&data_=' + unsorted_data : ''}`,
-            ].reduce((last, i) => last + i),
             "many_sorts": [
                 "get_many_sorts?",
-                `get_history=${get_history}`,
-                `&len_file=${len_file}`,
+                `len_file=${len_file}`,
+                `${unsorted_data ? '&data_=' + unsorted_data : ''}`,
+                `&get_history=${get_history}`,
                 `&count_of_read=${get_count_of_read}`,
                 `&count_of_write=${get_count_of_write}`,
                 `&type_internal_sort=${pre_sort_type}`,
-                `&external_sort_type=${external_sort_type}`,
-                `${unsorted_data ? '&data_=' + unsorted_data : ''}`,
+                `&start_len=${10}`,
+                `&end_len=${100}`,
+                `&count_iter=${5}`,
+
             ].reduce((last, i) => last + i),
         };
 
         const displayed_sorts_func = i => {
                 const data_from_server = JSON.parse(i);
+
+                console.log(data_from_server);
 
                 const patent_box =  document.getElementById("patent_box");
                 [...patent_box.children].filter(i => i.id && !(i.id in data_from_server)).map(i => patent_box.removeChild(i));

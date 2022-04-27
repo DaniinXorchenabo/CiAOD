@@ -137,7 +137,7 @@ class Sorts(AbstractPreSort):
 
     def __class_getitem__(cls, data_, *item):
         print(data_, *item)
-        file_generator, writer, internal_pre_sorter, *_ = data_
+        sort_class_type, file_generator, writer, internal_pre_sorter, *_ = data_
         new_cls = super().__class_getitem__(data_, *item)
         new_cls.internal_sorting_with_two_phase_natural_merge = staticmethod(cls.two_phase(file_generator, writer, internal_pre_sorter))
         new_cls.internal_sorting_with_one_phase_natural_merge = staticmethod(cls.one_phase(file_generator, writer, internal_pre_sorter))
