@@ -164,11 +164,3 @@ def create_file_iterator_class(
 
     return FileIterator
 
-# FileIterator = create_file_iterator_class()
-#
-# with open("files/a.bin", "rb+") as f:
-#     file_controller = FileIterator(f)
-#     # file_controller.write(b'0123456789ABCDEF')
-#     file_controller.pointer_move_absolute(3)
-#     # file_controller.file_io.seek(-1, 1)
-#     print(file_controller.change_char(b"abcd"))

@@ -120,6 +120,5 @@ async def get_files_names(from_: int, to_: int, filename: str):
 
 app.mount("/public", StaticFiles(directory=join(split(__file__)[0], 'public')), name="static")
 
-
 if __name__ == "__main__":
     uvicorn.run("main:app", host="localhost", port=9010, reload=True)

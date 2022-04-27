@@ -398,8 +398,6 @@ class Sorts(ABC):
             quick_sort = "quick_sort"
             none = "none"
 
-
-
         @classmethod
         def get_internal_pre_sorter(cls, type_internal_sorter: TypeInternalSort, chink_size: int):
 

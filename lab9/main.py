@@ -212,28 +212,8 @@ def quicksort(a: list | str):
 
     return list(_quicksort(list(a)))
 
-if __name__ == "__main__":
-    """
-    7703125000
-    7656250000
-    10453125000
-    10500000000
-    13515625000
-    13656250000
-                   
-    109375000
-    
-    """
-    # iter_count = 1000
-    # arr_len = 100
-    # _arr = [randint(0, 10) for _ in range(arr_len)]
-    # arr = [[j for j in _arr] for _ in range(iter_count)]
-    # time_ = process_time_ns()
-    # for i in range(iter_count):
-    #     quicksort(arr[i])
-    # time_ = process_time_ns() - time_
-    # print(time_)
 
+if __name__ == "__main__":
     count_iter = 10_000_000
     len_file = 10_000
     count_of_read = 1
@@ -245,107 +225,5 @@ if __name__ == "__main__":
 
     print(time_)
     print(time_ / count_iter)
-
-    # count_iter = 10_000_000
-    # len_file = 10_000
-    # count_of_read = 1
-    #
-    # with open("files/data2.bin", "rb+") as f:
-    #     time_ = process_time_ns()
-    #     for j in range(count_iter // len_file):
-    #         for i in range(len_file//count_of_read):
-    #             f.write(b'1' * count_of_read)
-    #     f.seek(0, 0)
-    #     time_ = process_time_ns() - time_
-    #
-    # print(time_)
-    #
-    # count_of_read = 1
-
-    # with open("files/data1.bin", "rb+") as f:
-    #     time_ = process_time_ns()
-    #     for j in range(count_iter // len_file):
-    #         for i in range(len_file//count_of_read):
-    #             f.read(count_of_read)
-    #     f.seek(0, 0)
-    #     time_ = process_time_ns() - time_
-    #
-    # print(time_)
-
-
-    #
-    # count_of_read = 100
-    #
-    # with open("files/data1.bin", "rb+") as f:
-    #     time_ = process_time_ns()
-    #     for j in range(count_iter // len_file):
-    #         for i in range(len_file//count_of_read):
-    #             f.read(count_of_read)
-    #     f.seek(0, 0)
-    #     time_ = process_time_ns() - time_
-    #
-    # print(time_)
-
-    # count_iter = 1_000_000
-    #
-    # with open("files/data1.bin", "rb+") as f:
-    #     time_ = process_time_ns()
-    #     f.seek(5000, 0)
-    #     for _ in range(count_iter):
-    #         f.seek(1, 1)
-    #         f.seek(-1, 1)
-    #     time_ = process_time_ns() - time_
-    #
-    # print(time_)
-    #
-    # with open("files/data1.bin", "rb+") as f:
-    #     time_ = process_time_ns()
-    #     f.seek(5000, 0)
-    #     for _ in range(count_iter):
-    #         f.seek(5000, 1)
-    #         f.seek(-5000, 1)
-    #     time_ = process_time_ns() - time_
-    #
-    # print(time_)
-    #
-    # with open("files/data1.bin", "rb+") as f:
-    #     time_ = process_time_ns()
-    #
-    #     for _ in range(count_iter):
-    #         f.seek(0, 2)
-    #         f.seek(-9000, 2)
-    #     time_ = process_time_ns() - time_
-    #
-    # print(time_)
-    #
-    # with open("files/data1.bin", "rb+") as f:
-    #     time_ = process_time_ns()
-    #
-    #     for _ in range(count_iter):
-    #         f.seek(0, 2)
-    #         f.seek(-5, 2)
-    #     time_ = process_time_ns() - time_
-    #
-    # print(time_)
-    #
-    # with open("files/data1.bin", "r+") as f:
-    #     time_ = process_time_ns()
-    #
-    #     for _ in range(count_iter):
-    #         f.seek(0, 0)
-    #         f.seek(5000, 0)
-    #     time_ = process_time_ns() - time_
-    #
-    # print(time_)
-    #
-    # with open("files/data1.bin", "r+") as f:
-    #     time_ = process_time_ns()
-    #
-    #     for _ in range(count_iter):
-    #         f.seek(0, 0)
-    #         f.seek(5, 0)
-    #     time_ = process_time_ns() - time_
-    #
-    # print(time_)
 
     uvicorn.run("main:app", host="localhost", port=9021, reload=True)

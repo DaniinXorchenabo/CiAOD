@@ -13,7 +13,7 @@ class Sorts(ABC):
     one_phase_sorting_by_simple_merge: Callable
 
     @classmethod
-    def two_phase(cls, file_generator, file_writer, *args):
+    def two_phase_7(cls, file_generator, file_writer, *args):
         def two_phase_sorting_by_simple_merge(base_file: str, part_file1: str, part_file2: str, *args,
                                               len_file: Optional[int] = None, **kwargs):
             if len_file is None:
@@ -61,7 +61,7 @@ class Sorts(ABC):
         return two_phase_sorting_by_simple_merge
 
     @classmethod
-    def one_phase(cls, file_generator, file_writer, *args):
+    def one_phase_7(cls, file_generator, file_writer, *args):
         def one_phase_sorting_by_simple_merge(base_file: str, part_file1: str, part_file2: str,
                                               part_file3: str, part_file4: str, *args,
                                               len_file: Optional[int] = None, **kwargs):
@@ -130,8 +130,8 @@ class Sorts(ABC):
         print(data_, *item)
         file_generator, writer = data_
         new_cls = type(f'{cls.__name__}As{item}', (cls,), dict())
-        new_cls.two_phase_sorting_by_simple_merge = staticmethod(cls.two_phase(file_generator, writer))
-        new_cls.one_phase_sorting_by_simple_merge = staticmethod(cls.one_phase(file_generator, writer))
+        new_cls.two_phase_sorting_by_simple_merge = staticmethod(cls.two_phase_7(file_generator, writer))
+        new_cls.one_phase_sorting_by_simple_merge = staticmethod(cls.one_phase_7(file_generator, writer))
 
         return new_cls
 
@@ -262,41 +262,6 @@ class Sorts(ABC):
                 print(*string, sep=sep, end=end, file=file)
 
         return write_file
-
-    @staticmethod
-    def old_get_values(file1_: Generator, file2_: Generator, count: int):
-        f1_ = islice(file1_, count)
-        f2_ = islice(file2_, count)
-        try:
-            item1 = next(f1_)
-        except StopIteration:
-            yield from f2_
-            return
-        try:
-            item2 = next(f2_)
-        except StopIteration:
-            yield item1
-            yield from f1_
-            return
-
-        while True:
-            if item1 < item2:
-                yield item1
-                try:
-                    item1 = next(f1_)
-                except StopIteration as e:
-                    yield item2
-                    yield from f2_
-                    break
-            else:
-                yield item2
-                try:
-                    item2 = next(f2_)
-                except StopIteration as e:
-                    yield item1
-                    yield from f1_
-                    break
-
 
     @staticmethod
     def get_values(file1_: Generator, file2_: Generator):
