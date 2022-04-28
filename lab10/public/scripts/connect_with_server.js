@@ -74,43 +74,73 @@ const button_handler = (event) => {
                 const data_from_server = JSON.parse(i);
 
                 console.log(data_from_server);
+                const transform_data = {};
+                const transform_for_graph = {};
+                [...Object.entries(data_from_server)]
+                    .map(([len_sorted_data, value_]) => [...Object.entries(value_)]
+                        .map(([sort_type, data]) => {
+                            data['size'] = len_sorted_data;
+                            data['sort_type'] = sort_type;
+                            transform_data[`${sort_type}__${len_sorted_data}`] = data;
+                            if (!transform_for_graph[sort_type]){
+                                transform_for_graph[sort_type] = {};
+                                transform_for_graph[sort_type]["size"] = [];
+                                transform_for_graph[sort_type]["time"] = [];
+                                transform_for_graph[sort_type]["count_of_read"] = [];
+                                transform_for_graph[sort_type]["count_of_write"] = [];
+                            }
+                            transform_for_graph[sort_type]["size"].push(len_sorted_data);
+                            if (data["time"]){
+                                transform_for_graph[sort_type]["time"].push(data["time"]);
+                            }
+                            if (data["count_of_read"]){
+                                transform_for_graph[sort_type]["count_of_read"].push(data["count_of_read"]);
+                            }
+                            if (data["count_of_write"]){
+                                transform_for_graph[sort_type]["count_of_write"].push(data["count_of_write"]);
+                            }
 
+                        }));
+                console.log(transform_data);
                 const patent_box =  document.getElementById("patent_box");
-                [...patent_box.children].filter(i => i.id && !(i.id in data_from_server)).map(i => patent_box.removeChild(i));
+                [...patent_box.children].filter(i => i.id && !(i.id in transform_data)).map(i => patent_box.removeChild(i));
                 const ids = [...patent_box.children].filter(i => i.id).map(i => i.id);
-                patent_box.innerHTML += [...Object.entries(data_from_server)]
+                patent_box.innerHTML += [...Object.entries(transform_data)]
                     .filter(([k, v]) => !(k in ids))
                     .map(([k, v]) => sort_displayed_gen(k))
                     .reduce((last, i) => last + i);
 
 
-                [...document.querySelectorAll('button')].map(
-                    el => el.addEventListener('click', button_handler, {once: false}))
+                // [...document.querySelectorAll('button')].map(
+                //     el => el.addEventListener('click', button_handler, {once: false}))
 
-                console.log(data_from_server);
-                [...Object.entries(data_from_server)].map(([sort_type, v]) => {
-                    [...Object.entries(v)].map(([key, val]) => {
-                        const el = document.getElementById(`${sort_type}_${key}`);
-                        el.value = val;
-                        el.textContent = val;
+                // console.log(transform_data);
+                // [...Object.entries(transform_data)].map(([sort_type, v]) => {
+                //     [...Object.entries(v)].map(([key, val]) => {
+                //         const el = document.getElementById(`${sort_type}_${key}`);
+                //         el.value = val;
+                //         el.textContent = val;
+                //
+                //     });
+                // });
 
-                    });
-                });
-                ["one", "two"].map(i => {
-                    if (data_from_server[i]){
-                         const item = document.getElementById(i);
-                         if (item) {
-                             item.style.display = '';
-                         }
-                    } else {
-                        const item = document.getElementById(i);
-                         if (item) {
-                             item.style.display = 'none';
-                         }
-                    }
-                    return i;
+                // ["one", "two"].map(i => {
+                //     if (data_from_server[i]){
+                //          const item = document.getElementById(i);
+                //          if (item) {
+                //              item.style.display = '';
+                //          }
+                //     } else {
+                //         const item = document.getElementById(i);
+                //          if (item) {
+                //              item.style.display = 'none';
+                //          }
+                //     }
+                //     return i;
+                //
+                // });
 
-                });
+                draw_graph(transform_for_graph, transform_data );
             }
 
         const id_to_result_f = {

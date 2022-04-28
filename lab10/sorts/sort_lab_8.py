@@ -9,6 +9,7 @@ from time import process_time_ns
 from abc import ABC
 import enum
 
+# from lab10.sort_creator import TypeInternalSort
 from lab10.sorts.abstract_sort import AbstractSort
 from lab10.sorts.abstract_pre_sort import AbstractPreSort
 

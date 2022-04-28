@@ -39,7 +39,8 @@ async def create_files():
         file_name = join(dirname(__file__), 'files', dir_name)
         # print(file_name, "|==>", list(os.walk(file_name)))
         # files: list[str] = list(os.walk(join(dirname(__file__), 'files', dir_name)))[0]
-        files: list[str] = [join(dirname(__file__), 'files', i) for i in list(os.walk(join(dirname(__file__), 'files', dir_name)))[0][2]]
+        files: list[str] = [join(dirname(__file__), 'files', dir_name, i) for i in
+                            list(os.walk(join(dirname(__file__), 'files', dir_name)))[0][2]]
         sorts_args[sort_type] = tuple([files[-1]] + files[:-1]), dict()
 
     # print(*sorts_args.items(), sep='\n')
@@ -95,6 +96,7 @@ async def get_many_sorts(
         count_of_read: bool = False,
         count_of_write: bool = False,
         type_internal_sort: TypeInternalSort = TypeInternalSort.quick_sort,
+        chink_size_for_internal_sort: int = 10,
         start_len: int = 10,
         end_len: int = 100,
         count_iter: int = 5,
@@ -117,14 +119,14 @@ async def get_many_sorts(
                 **(
                         sorts_args[sort_type][1]
                         | {
-                            'get_sort_type': sort_type,
-                            'len_file': len_file,
+                            'len_file': i,
                             'data': data,
                             'get_history': get_history,
                             'count_of_read': count_of_read,
                             "count_of_write": count_of_write,
                             "type_internal_sort": type_internal_sort,
-                            "chink_size_for_internal_sort": i,
+                            "chink_size_for_internal_sort": chink_size_for_internal_sort,
+                            'get_sort_type': sort_type,
 
                         }
                 )
@@ -144,8 +146,8 @@ async def get_many_sorts(
 @app.get("/get_files")
 async def get_files_names():
     # print(*os.walk(join(dirname(__file__), 'files')), sep='\n')
-    s=  [join(split(i[0])[1], j) for i in os.walk(join(dirname(__file__), 'files'))
-            if any(split(i[0])[1].startswith(k) for k in ['one_phase', 'two_phase', "selection"])
+    s = [join(split(i[0])[1], j) for i in os.walk(join(dirname(__file__), 'files'))
+         if any(split(i[0])[1].startswith(k) for k in ['one_phase', 'two_phase', "selection"])
          for j in i[2]] + ['data.txt']
     print(*s, sep='\n')
     return s

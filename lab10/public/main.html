@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="/public/stiles/table_stiles.css">
     <link rel="stylesheet" href="/public/stiles/layout_stiles.css">
 
+    <script defer src="https://cdn.plot.ly/plotly-2.6.3.min.js"></script>
+    <script defer src="/public/scripts/graph.js"></script>
     <script defer src="/public/scripts/html_generator.js"></script>
     <script defer src="/public/scripts/validation.js"></script>
     <script defer src="/public/scripts/connect_with_server.js"></script>
@@ -18,7 +20,7 @@
 <h1>Сравнение сортировок</h1>
 <div class="parent_box">
 
-    <div class="child input_box_parent" id="patent_box">
+    <div class="child input_box_parent">
         <div class="array_box">
             <h2>Вывести интервал</h2>
             <div class="input_box">
@@ -93,49 +95,38 @@
             <button id="many_sorts">Отсортироваль</button>
         </div>
 
-<!--        <div class="array_box" id="two">-->
-<!--            <h2>Двухфазная</h2>-->
-<!--            <div class="output_box">-->
-<!--                <text>Время (в наносекундах):</text>-->
-<!--                <text id="two_time">?</text>-->
-<!--            </div>-->
-<!--            <div class="output_box">-->
-<!--                <text>количество чтений из файла</text>-->
-<!--                <text id="two_count_of_read">?</text>-->
-<!--            </div>-->
-<!--            <div class="output_box">-->
-<!--                <text>количество записей в файл</text>-->
-<!--                <text id="two_count_of_write">?</text>-->
-<!--            </div>-->
-<!--            <div class="output_box">-->
-<!--                <textarea disabled id="two_history"></textarea>-->
-<!--            </div>-->
-<!--        </div>-->
 
-<!--        <div class="output_box" id="one">-->
-<!--            <h2>Однофазная:</h2>-->
-<!--            <div class="output_box">-->
-<!--                <text>Время (в наносекундах):</text>-->
-<!--                <text id="one_time">?</text>-->
-<!--            </div>-->
-<!--            <div class="output_box">-->
-<!--                <text>количество чтений из файла</text>-->
-<!--                <text id="one_count_of_read">?</text>-->
-<!--            </div>-->
-<!--            <div class="output_box">-->
-<!--                <text>количество записей в файл</text>-->
-<!--                <text id="one_count_of_write">?</text>-->
-<!--            </div>-->
-<!--            <div class="output_box">-->
-<!--                <textarea disabled id="one_history"></textarea>-->
-<!--            </div>-->
-<!--        </div>-->
+    </div>
+    <div class="child">
+        <div id="my_graph"></div>
+    </div>
+</div>
 
+<div class="table_box">
+    <table id="result_table">
+        <caption>Тип отображаемого массива</caption>
+        <thead>
+        <tr>
+            <th>Количество элементов</th>
+            <th>100</th>
+            <th>200</th>
+            <th>300</th>
+            <th>300</th>
+        </tr>
+        </thead>
+
+
+    </table>
+</div>
+
+
+<div class="parent_box">
+
+    <div class="child input_box_parent" id="patent_box">
 
     </div>
 
 </div>
-
 
 </body>
 </html>
