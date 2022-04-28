@@ -82,7 +82,7 @@ const button_handler = (event) => {
                             data['size'] = len_sorted_data;
                             data['sort_type'] = sort_type;
                             transform_data[`${sort_type}__${len_sorted_data}`] = data;
-                            if (!transform_for_graph[sort_type]){
+                            if (transform_for_graph[sort_type] === undefined){
                                 transform_for_graph[sort_type] = {};
                                 transform_for_graph[sort_type]["size"] = [];
                                 transform_for_graph[sort_type]["time"] = [];
@@ -90,13 +90,13 @@ const button_handler = (event) => {
                                 transform_for_graph[sort_type]["count_of_write"] = [];
                             }
                             transform_for_graph[sort_type]["size"].push(len_sorted_data);
-                            if (data["time"]){
+                            if (data["time"] !== undefined){
                                 transform_for_graph[sort_type]["time"].push(data["time"]);
                             }
-                            if (data["count_of_read"]){
+                            if (data["count_of_read"]!== undefined){
                                 transform_for_graph[sort_type]["count_of_read"].push(data["count_of_read"]);
                             }
-                            if (data["count_of_write"]){
+                            if (data["count_of_write"]!== undefined){
                                 transform_for_graph[sort_type]["count_of_write"].push(data["count_of_write"]);
                             }
 

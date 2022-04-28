@@ -1,4 +1,3 @@
-
 let layout = {
     title: 'Типы сортировок',
     uirevision: 'true',
@@ -17,6 +16,22 @@ const updating_graph_data = ([key, value, default_obj], index) => {
     })
 }
 
+const get_data_for_showing_graph = (formatted_data, flag) => {
+    return formatted_data
+        .map(([key, value, default_obj], index) => {
+            const new_value = {};
+            [...value["size"]].map((item, index) => {
+                new_value[item] = value[flag][index];
+            });
+            // console.log(key, value, default_obj);
+            // [...Object.entries(value)].map(([k, v]) => {
+            //     new_value[v["size"]] = v[flag];
+            // });
+            return [key, new_value, default_obj]
+        })
+        .map(updating_graph_data);
+}
+
 const draw_graph = (data_for_graph, sort_data, graph_text = "Типы сортировок") => {
 
     let graph_data = [
@@ -29,13 +44,11 @@ const draw_graph = (data_for_graph, sort_data, graph_text = "Типы сорти
         {mode: 'lines', line: {color: "#28ffcd"}},
     ]
     const raw_data = [...Object.entries(data_for_graph)]
-    let local_data = raw_data
-        .map((el, ind) => el.concat([graph_data[ind]]))
-        .map(i => {
-            console.log(i);
-            return i
-        })
-        .map(updating_graph_data);
+    let formatted_data = raw_data
+        .map((el, ind) => el.concat([graph_data[ind]]));
+    console.log(formatted_data);
+    let local_data = get_data_for_showing_graph(formatted_data, "time");
+    console.log(local_data);
     layout.title = graph_text;
     console.log(layout.title)
     layout.xaxis.autorange = true;
@@ -69,8 +82,8 @@ const draw_graph = (data_for_graph, sort_data, graph_text = "Типы сорти
                 ${raw_data.reduce(
         (str, [key, val]) =>
             str + "<tr><td>" + key + "</td>" + [...Object.keys(target_indexes)].reduce(
-            (last, number_) =>
-                last + "<td>" + Math.round(val[Number(number_)] * 1000) + "</td>", ""
+                (last, number_) =>
+                    last + "<td>" + Math.round(val[Number(number_)] * 1000) + "</td>", ""
             ) + "</tr>\n", ""
     )
     }
