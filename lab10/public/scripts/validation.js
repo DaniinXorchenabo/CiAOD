@@ -40,12 +40,20 @@ const change_count_items_with_unsorted_data = (event) => {
 	let unsorted_data = document.getElementById('unsorted_data')?.value
 	if (!unsorted_data || unsorted_data === ""){
 		unsorted_data = null;
-		document.getElementById('count_of_elements').disabled = false;
+		document.getElementById('count_of_elements__from').disabled = false;
+		document.getElementById('count_of_elements__to').disabled = false;
+		document.getElementById('count_of_elements__iteration').disabled = false;
 		console.log(unsorted_data)
 	} else {
-		const count_of_elements_field = document.getElementById('count_of_elements');
-		count_of_elements_field.disabled = true;
-		count_of_elements_field.value = unsorted_data.toString().length;
+		const count_of_elements_field__from = document.getElementById('count_of_elements__from');
+		const count_of_elements_field__to = document.getElementById('count_of_elements__to');
+		const count_of_elements_field__iteration = document.getElementById('count_of_elements__iteration');
+		count_of_elements_field__from.disabled = true;
+		count_of_elements_field__to.disabled = true;
+		count_of_elements_field__iteration.disabled = true;
+		count_of_elements_field__from.value = unsorted_data.toString().length;
+		count_of_elements_field__to.value = unsorted_data.toString().length;
+		count_of_elements_field__iteration.value = 1
 		console.log(unsorted_data)
 	}
 }

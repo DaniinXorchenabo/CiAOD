@@ -4,17 +4,17 @@ const button_handler = (event) => {
     console.log(event.target.id);
     setTimeout(() => {
         const xhr = new XMLHttpRequest();
-        // const start = document.getElementById(`part_of_file_from`).value;
-        // const end = document.getElementById(`part_of_file_to`).value;
-        // const setup_count = document.getElementById("iteration_count").value;
+        const count_of_items_start = document.getElementById(`count_of_elements__from`).value;
+        const  count_of_items_end = document.getElementById(`count_of_elements__to`).value;
+        const  count_of_items_iter = document.getElementById("count_of_elements__iteration").value;
         // const graph_text = event.target.attributes.graph_text.nodeValue;
         const get_history = document.getElementById("get_sorted_data").checked;
         const get_count_of_read = document.getElementById("get_count_of_read").checked;
         const get_count_of_write = document.getElementById("get_count_of_write").checked;
-        const len_file = document.getElementById("count_of_elements").value;
+        // const len_file = document.getElementById("count_of_elements").value;
         const pre_sort_count = document.getElementById("count_of_elements_for_internal_pre_sort").value;
         const pre_sort_type = document.getElementById('change_internal_pre_sort_type').value;
-        const external_sort_type = document.getElementById("change_external_sort_type").value;
+
         const start = document.getElementById(`part_of_file_from`).value;
         const end = document.getElementById(`part_of_file_to`).value;
         const target_file = document.getElementById('select_file').value;
@@ -57,15 +57,16 @@ const button_handler = (event) => {
             "part_of_file": `get_part_file?filename=${target_file}&from_=${start}&to_=${end}`,
             "many_sorts": [
                 "get_many_sorts?",
-                `len_file=${len_file}`,
+                // `len_file=${len_file}`,
                 `${unsorted_data ? '&data_=' + unsorted_data : ''}`,
                 `&get_history=${get_history}`,
                 `&count_of_read=${get_count_of_read}`,
                 `&count_of_write=${get_count_of_write}`,
                 `&type_internal_sort=${pre_sort_type}`,
-                `&start_len=${10}`,
-                `&end_len=${100}`,
-                `&count_iter=${5}`,
+                `&chink_size_for_internal_sort=${pre_sort_count}`,
+                `&start_len=${count_of_items_start}`,
+                `&end_len=${count_of_items_end}`,
+                `&count_iter=${count_of_items_iter}`,
 
             ].reduce((last, i) => last + i),
         };

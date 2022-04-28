@@ -14,7 +14,6 @@
     <script defer src="/public/scripts/connect_with_server.js"></script>
 
 
-
 </head>
 <body>
 <h1>Сравнение сортировок</h1>
@@ -22,7 +21,7 @@
 
     <div class="child input_box_parent">
         <div class="array_box">
-            <h2>Вывести интервал</h2>
+            <h3>Вывести интервал</h3>
             <div class="input_box">
                 <text>Из Файла</text>
                 <select id="select_file">
@@ -45,44 +44,23 @@
             </div>
         </div>
         <div class="array_box">
+            <h3>Параметры сортировок</h3>
             <div class="input_box">
-                <test>Количество элементов:</test>
-                <input id="count_of_elements" value="1000" placeholder="Введите число"
-                       oninput="correcting_number('count_of_elements')"
-                       onchange="corrected_number('count_of_elements')"/>
-
+                <h4>Количество элементов:</h4>
             </div>
             <div class="input_box">
-                <test>Количество элементов для внутренней предсортировки:</test>
-                <input id="count_of_elements_for_internal_pre_sort" value="100" placeholder="Введите число"
-                       oninput="correcting_number('count_of_elements')"
-                       onchange="corrected_number('count_of_elements')"/>
-
-            </div>
-            <div class="input_box">
-                <text>Какой тип внутренней сортировки использовать?</text>
-                <select id="change_internal_pre_sort_type">
-
-                </select>
-            </div>
-            <div class="input_box">
-                <text>Какой тип внешней сортировки использовать?</text>
-                <select id="change_external_sort_type">
-                    <option value="one">Однофазную</option>
-                    <option value="two">Двухфазную</option>
-                </select>
-            </div>
-            <div class="input_box">
-                <test>Вывести результаты сортировок?</test>
-                <input id="get_sorted_data" checked type="checkbox"/>
-            </div>
-            <div class="input_box">
-                <test>Вывести количество чтений?</test>
-                <input id="get_count_of_read" checked type="checkbox"/>
-            </div>
-            <div class="input_box">
-                <test>Вывести количество записей?</test>
-                <input id="get_count_of_write" checked type="checkbox"/>
+                <text>От</text>
+                <input id="count_of_elements__from" value="0" placeholder="Введите число"
+                       oninput="correcting_number('count_of_elements__from')"
+                       onchange="corrected_number('count_of_elements__from')"/>
+                <text>до</text>
+                <input id="count_of_elements__to" value="100" placeholder="Введите число"
+                       oninput="correcting_number('count_of_elements__to')"
+                       onchange="corrected_number('count_of_elements__to')"/>
+                <text>Количество итераций</text>
+                <input id="count_of_elements__iteration" value="5" placeholder="Введите число"
+                       oninput="correcting_number('count_of_elements__iteration')"
+                       onchange="corrected_number('count_of_elements__iteration')"/>
             </div>
             <div class="input_box">
                 <test>Введите сортируемые данные</test>
@@ -92,6 +70,34 @@
                           id="unsorted_data"
                           oninput="change_count_items_with_unsorted_data(event)"></textarea>
             </div>
+
+
+            <div class="input_box">
+                <test>Количество элементов для внутренней предсортировки: (Для 8 и 9 лаб)</test>
+                <input id="count_of_elements_for_internal_pre_sort" value="100" placeholder="Введите число"
+                       oninput="correcting_number('count_of_elements_for_internal_pre_sort')"
+                       onchange="corrected_number('count_of_elements_for_internal_pre_sort')"/>
+
+            </div>
+            <div class="input_box">
+                <text>Какой тип внутренней сортировки использовать? (Для 8 и 9 лаб)</text>
+                <select id="change_internal_pre_sort_type">
+
+                </select>
+            </div>
+            <div class="input_box">
+                <test>Вывести визуализацию процесса сортировок?</test>
+                <input id="get_sorted_data" type="checkbox"/>
+            </div>
+            <div class="input_box">
+                <test>Вывести количество чтений?</test>
+                <input id="get_count_of_read" checked type="checkbox"/>
+            </div>
+            <div class="input_box">
+                <test>Вывести количество записей?</test>
+                <input id="get_count_of_write" checked type="checkbox"/>
+            </div>
+
             <button id="many_sorts">Отсортироваль</button>
         </div>
 

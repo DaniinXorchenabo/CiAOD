@@ -51,46 +51,44 @@ async def get_ui():
     return "public/main.html"
 
 
-@app.get("/get_sorts_time")
-async def get_graphs_data(
-        len_file: Optional[int],
-        data_: Optional[str] = None,
-        get_history: bool = False,
-        count_of_read: bool = False,
-        count_of_write: bool = False,
-        external_sort_type: SortType = SortType.one6,
-        type_internal_sort: TypeInternalSort = TypeInternalSort.quick_sort,
-        chink_size_foe_internal_sort: int = 100,
-
-):
-    assert (len_file is None or data_ is None) or len_file == len(data_)
-    assert len_file is not None or data_ is not None
-
-    data = AllSorts.write_random_data_in_file(DATA_FILE_NAME, len_=len_file or len(data_), data_=data_)
-
-    return {
-        external_sort_type: sorts_func[external_sort_type](
-            *sorts_args[external_sort_type][0],
-            **(
-                    sorts_args[external_sort_type][1]
-                    | {
-                        'len_file': len_file,
-                        'data': data,
-                        'get_history': get_history,
-                        'count_of_read': count_of_read,
-                        "count_of_write": count_of_write,
-                        "type_internal_sort": type_internal_sort,
-                        "chink_size_foe_internal_sort": chink_size_foe_internal_sort,
-
-                    }
-            )
-        )
-    }
+# @app.get("/get_sorts_time")
+# async def get_graphs_data(
+#         data_: Optional[str] = None,
+#         get_history: bool = False,
+#         count_of_read: bool = False,
+#         count_of_write: bool = False,
+#         external_sort_type: SortType = SortType.one6,
+#         type_internal_sort: TypeInternalSort = TypeInternalSort.quick_sort,
+#         chink_size_foe_internal_sort: int = 100,
+#
+# ):
+#     assert (len_file is None or data_ is None) or len_file == len(data_)
+#     assert len_file is not None or data_ is not None
+#
+#     data = AllSorts.write_random_data_in_file(DATA_FILE_NAME, len_=len_file or len(data_), data_=data_)
+#
+#     return {
+#         external_sort_type: sorts_func[external_sort_type](
+#             *sorts_args[external_sort_type][0],
+#             **(
+#                     sorts_args[external_sort_type][1]
+#                     | {
+#                         'len_file': len_file,
+#                         'data': data,
+#                         'get_history': get_history,
+#                         'count_of_read': count_of_read,
+#                         "count_of_write": count_of_write,
+#                         "type_internal_sort": type_internal_sort,
+#                         "chink_size_foe_internal_sort": chink_size_foe_internal_sort,
+#
+#                     }
+#             )
+#         )
+#     }
 
 
 @app.get("/get_many_sorts")
 async def get_many_sorts(
-        len_file: Optional[int],
         data_: Optional[str] = None,
         get_history: bool = False,
         count_of_read: bool = False,
@@ -101,17 +99,7 @@ async def get_many_sorts(
         end_len: int = 100,
         count_iter: int = 5,
 ):
-    print('wew')
-    assert (len_file is None or data_ is None) or len_file == len(data_)
-    assert len_file is not None or data_ is not None
 
-    data = AllSorts.write_random_data_in_file(DATA_FILE_NAME, len_=len_file or len(data_), data_=data_)
-    print(start_len, end_len, (end_len - start_len) // count_iter, 1)
-    print([i for ind, i in enumerate(range(
-        start_len,
-        end_len,
-        max((end_len - start_len) // count_iter, 1)
-    ))])
     answer = {
         i: {
             sort_type: sorts_func[SortType(sort_type)](
@@ -125,7 +113,7 @@ async def get_many_sorts(
                             'count_of_read': count_of_read,
                             "count_of_write": count_of_write,
                             "type_internal_sort": type_internal_sort,
-                            "chink_size_for_internal_sort": chink_size_for_internal_sort,
+                            "chink_size_for_internal_sort": min(chink_size_for_internal_sort, i),
                             'get_sort_type': sort_type,
 
                         }
@@ -133,10 +121,11 @@ async def get_many_sorts(
             ) for sort_type in SortType
         }
         for ind, i in enumerate(range(
-            start_len,
-            end_len,
+            max(start_len, 1),
+            max([end_len, start_len + 1, 2]),
             max((end_len - start_len) // count_iter, 1)
         ))
+        if (data := AllSorts.write_random_data_in_file(DATA_FILE_NAME, len_=i, data_=data_)) is not None
 
     }
     print("==================================", answer)

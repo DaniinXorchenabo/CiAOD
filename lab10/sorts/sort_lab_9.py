@@ -47,6 +47,9 @@ class Sorts(AbstractPreSort):
 
                 begin_last_fragment = begin_current_fragment
                 begin_current_fragment -= chink_size
+                _begin_current_fragment = begin_current_fragment
+                begin_current_fragment = max(0, begin_current_fragment)
+                chink_size = chink_size + (_begin_current_fragment - begin_current_fragment)
                 file_controller.pointer_move_absolute(begin_current_fragment)
 
                 unsorted_data: str = file_controller.read(chink_size)
