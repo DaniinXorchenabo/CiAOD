@@ -34,11 +34,12 @@ async def create_files():
         type_ = str(sort_type.value)[:-1]
         lab_num = str(sort_type.value)[-1]
         dir_name = f"{type_}_phase_{lab_num}"
-        if lab_num.isdigit() is False:
-            dir_name = f"{sort_type.value}_9"
+        if lab_num.isdigit() is False or lab_num == '9':
+            dir_name = f"{str(sort_type.value).replace('9', '')}_9"
         file_name = join(dirname(__file__), 'files', dir_name)
         # print(file_name, "|==>", list(os.walk(file_name)))
         # files: list[str] = list(os.walk(join(dirname(__file__), 'files', dir_name)))[0]
+        print(join(dirname(__file__), 'files', dir_name), list(os.walk(join(dirname(__file__), 'files', dir_name))))
         files: list[str] = [join(dirname(__file__), 'files', dir_name, i) for i in
                             list(os.walk(join(dirname(__file__), 'files', dir_name)))[0][2]]
         sorts_args[sort_type] = tuple([files[-1]] + files[:-1]), dict()

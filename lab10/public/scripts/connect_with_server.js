@@ -102,28 +102,30 @@ const button_handler = (event) => {
                             }
 
                         }));
-                console.log(transform_data);
+                console.log("====", transform_data);
                 const patent_box =  document.getElementById("patent_box");
                 [...patent_box.children].filter(i => i.id && !(i.id in transform_data)).map(i => patent_box.removeChild(i));
                 const ids = [...patent_box.children].filter(i => i.id).map(i => i.id);
                 patent_box.innerHTML += [...Object.entries(transform_data)]
                     .filter(([k, v]) => !(k in ids))
-                    .map(([k, v]) => sort_displayed_gen(k))
+                    .map(([k, v]) => sort_displayed_gen(k, v))
                     .reduce((last, i) => last + i);
 
 
                 // [...document.querySelectorAll('button')].map(
-                //     el => el.addEventListener('click', button_handler, {once: false}))
+                //     el => el.addEventListener('click', button_handler, {once: false}));
 
                 // console.log(transform_data);
-                // [...Object.entries(transform_data)].map(([sort_type, v]) => {
-                //     [...Object.entries(v)].map(([key, val]) => {
-                //         const el = document.getElementById(`${sort_type}_${key}`);
-                //         el.value = val;
-                //         el.textContent = val;
-                //
-                //     });
-                // });
+                [...Object.entries(transform_data)].map(([sort_type, v]) => {
+                    [...Object.entries(v)].map(([key, val]) => {
+                        if ( ["time", "count_of_read", "count_of_write", "history"].some(i => i === key)) {
+                            const el = document.getElementById(`${sort_type}_${key}`);
+                            el.value = val;
+                            el.textContent = val;
+                        }
+
+                    });
+                });
 
                 // ["one", "two"].map(i => {
                 //     if (data_from_server[i]){
@@ -138,7 +140,7 @@ const button_handler = (event) => {
                 //          }
                 //     }
                 //     return i;
-                //
+
                 // });
 
                 draw_graph(transform_for_graph, transform_data, data_from_server);

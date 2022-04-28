@@ -27,7 +27,7 @@ def sort_func_decorator(func):
             **kwargs):
         AllSorts.write_random_data_in_file(args[0], len_=len(data), data_=data)
 
-        if get_sort_type == SortType.selection:
+        if get_sort_type == SortType.selection9:
 
             if type_internal_sort is None or chink_size_for_internal_sort is None:
                 raise AttributeError()
@@ -133,7 +133,7 @@ sorts_func: dict[SortType, Callable] = {
     SortType.two7: run_two_phase_sorting7,
     SortType.one8: run_one_phase_sorting8,
     SortType.two8: run_two_phase_sorting8,
-    SortType.selection: run_selection_sorting,
+    SortType.selection9: run_selection_sorting,
 }
 
 sorts_args: dict[SortType, tuple[tuple[str, ...], dict[str, Any]]] = dict()

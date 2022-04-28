@@ -62,4 +62,4 @@ class SortType(str, enum.Enum):
     one7 = "one7"
     two8 = "two8"
     one8 = "one8"
-    selection = "selection"
+    selection9 = "selection9"

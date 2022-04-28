@@ -16,7 +16,7 @@ class AllSorts(Sorts6, Sorts7, Sorts8, Sorts9):
             new_cls = Sorts7.__class_getitem__(item, *data)
         elif class_type in [SortType.two8, SortType.one8]:
             new_cls = Sorts8.__class_getitem__(item, *data)
-        elif class_type == SortType.selection:
+        elif class_type == SortType.selection9:
             new_cls = Sorts9.__class_getitem__(item, *data)
         else:
             raise AttributeError(f"Некорректный тим {class_type}")
