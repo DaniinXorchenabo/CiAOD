@@ -50,6 +50,10 @@ def sort_func_decorator(func):
                 chink_size_for_internal_sort=chink_size_for_internal_sort,
                 **kwargs)
             _d = file_control_class.return_static_variables()
+            if count_of_read is False:
+                _d["count_of_read"] = "?"
+            if count_of_write is False:
+                _d["count_of_write"] = "?"
             _m = max_len_filename = None
         else:
             print(get_sort_type)
