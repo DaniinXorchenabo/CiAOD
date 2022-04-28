@@ -23,16 +23,12 @@ const get_data_for_showing_graph = (formatted_data, flag) => {
             [...value["size"]].map((item, index) => {
                 new_value[item] = value[flag][index];
             });
-            // console.log(key, value, default_obj);
-            // [...Object.entries(value)].map(([k, v]) => {
-            //     new_value[v["size"]] = v[flag];
-            // });
             return [key, new_value, default_obj]
         })
         .map(updating_graph_data);
 }
 
-const draw_graph = (data_for_graph, sort_data, graph_text = "Типы сортировок") => {
+const draw_graph = (data_for_graph, sort_data, data_from_server, graph_text = "Типы сортировок") => {
 
     let graph_data = [
         {mode: 'lines', line: {color: "#fc7e0d"}},
@@ -67,7 +63,7 @@ const draw_graph = (data_for_graph, sort_data, graph_text = "Типы сорти
                 <thead>
                 <tr>
                     <th>Количество элементов</th>
-                    ${[...Object.keys(raw_data[0][1])]
+                    ${[...Object.keys( Object.values(data_from_server)[0])]
         .reduce(
             (str, el, ind, all_arr) => {
                 if (is_drawing_item(ind, all_arr)) {
@@ -79,12 +75,16 @@ const draw_graph = (data_for_graph, sort_data, graph_text = "Типы сорти
                 </tr>
                 </thead>
                 <tbody>
-                ${raw_data.reduce(
+                ${[...Object.entries(data_from_server)].reduce(
         (str, [key, val]) =>
-            str + "<tr><td>" + key + "</td>" + [...Object.keys(target_indexes)].reduce(
-                (last, number_) =>
-                    last + "<td>" + Math.round(val[Number(number_)] * 1000) + "</td>", ""
-            ) + "</tr>\n", ""
+            str + "<tr><td>" + key + "</td>" + [...Object.entries(val)].reduce(
+                (last, [k, v]) =>
+                    last + "<td><div class='cell_flex_box_parent'>"
+                    + "<div class='cell_part_flex_box_parent'><div class='x_left' >Время:</div>" + "<div class='x_right' >" + v['time'] + "</div></div>"
+                    + "<div class='cell_part_flex_box_parent'><div class='x_left' >Чтений:</div>" + "<div class='x_right' >" + v['count_of_read'] + "</div></div>"
+                    + "<div class='cell_part_flex_box_parent'><div class='x_left' >Записей:</div>" + "<div class='x_right' >" + v['count_of_write'] + "</div></div>"
+                    + "</td>", ""
+            ) + "</div></tr>\n", ""
     )
     }
                 </tbody>`;

@@ -140,7 +140,7 @@ const button_handler = (event) => {
                 //
                 // });
 
-                draw_graph(transform_for_graph, transform_data );
+                draw_graph(transform_for_graph, transform_data, data_from_server);
             }
 
         const id_to_result_f = {
